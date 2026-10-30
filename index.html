@@ -84,7 +84,7 @@ h2{margin:20px 2px 9px}
 </style></head><body>
 <main id="app"></main><nav id="nav"></nav>
 <script>
-const KEY='sam-fin-v1',PAL=['#0f766e','#6366f1','#f59e0b','#ec4899','#0ea5e9','#84cc16','#f97316','#a855f7'];
+const KEY=new URLSearchParams(location.search||'').has('demo')?'sam-fin-demo-v1':'sam-fin-v1',PAL=['#0f766e','#6366f1','#f59e0b','#ec4899','#0ea5e9','#84cc16','#f97316','#a855f7'];
 const EXC=['Housing','Groceries','Dining','Transport','Bills','Utilities','Subscriptions','Shopping','Health','Insurance','Personal','Fun','Other'],INC=['Salary','Business','Dividends','Rent','Other'];
 const NEEDS=['Housing','Groceries','Transport','Bills','Utilities','Insurance','Health'],WANTS=['Dining','Subscriptions','Shopping','Personal','Fun'];
 const RULES=[[/tim hortons|starbucks|mcdonald|burger|pizza|sushi|restaurant|cafe|coffee|a&w|subway|skip ?the ?dishes|doordash|uber ?eats|fantuan/i,'Dining'],[/save-on|superstore|loblaws|sobeys|safeway|freshco|no frills|t&t|grocery|groceries|costco|walmart|market/i,'Groceries'],[/netflix|spotify|apple|icloud|google one|youtube premium|prime|disney|hulu|subscription|membership|gym|goodlife/i,'Subscriptions'],[/bc hydro|fortis|hydro|electric|water bill|telus|rogers|bell|fido|koodo|internet|phone bill|shaw/i,'Utilities'],[/shell|petro|esso|chevron|gas station|translink|compass|uber(?! eats)|lyft|taxi|parking|icbc/i,'Transport'],[/insurance|icbc insurance/i,'Insurance'],[/pharmacy|shoppers drug|dental|dentist|clinic|doctor|physiotherapy/i,'Health'],[/amazon|ikea|best buy|canadian tire|dollarama|winners|mall|store/i,'Shopping'],[/rent|mortgage|landlord|strata/i,'Housing']];
@@ -316,6 +316,22 @@ function seedTest(){if(dq!='seed'){dq='seed';render();return}dq=null;
  S.goals=[{id:S.n++,name:'Emergency fund (TEST)',target:10000,saved:3200,date:'2027-06-01'}];
  S.mkt={last:'test data',news:[{id:S.n++,tk:'MSTE.TO',msg:'New distribution announced: $0.09/share, ex-date 2026-10-30 (TEST)',when:tdy()}]};
  save();go('home')}
+
+if(KEY=='sam-fin-demo-v1'&&!S.acc.length){
+ const td=new Date();const MD=(off,day)=>{const x=new Date(td);x.setDate(1);x.setMonth(x.getMonth()-off);x.setDate(day);return x.toISOString().slice(0,10)};
+ S.acc=[{id:S.n++,n:'Chequing',t:'cash',b:3850,lim:0},{id:S.n++,n:'Emergency fund',t:'savings',b:12400,lim:0},{id:S.n++,n:'Visa',t:'credit',b:1240,lim:6000},{id:S.n++,n:'Store card',t:'credit',b:380,lim:1500},{id:S.n++,n:'Chequing 1',t:'cash',b:100,lim:0},{id:S.n++,n:'Jehe',t:'savings',b:0,lim:0},{id:S.n++,n:'Sjs',t:'credit',b:60000,lim:0}];
+ const cq=S.acc[0].id,vs=S.acc[2].id;
+ S.hold=[{id:S.n++,tk:'RY',sh:40,cost:128,px:171.5,div:5.9,w:'nonreg'},{id:S.n++,tk:'XEQT',sh:300,cost:30,px:36.2,div:0.8,w:'nonreg'},{id:S.n++,tk:'TD',sh:60,cost:80,px:78.4,div:4.2,w:'nonreg'},{id:S.n++,tk:'ENB',sh:90,cost:50,px:61.3,div:3.7,w:'nonreg'}];
+ const T=(k,a,dt,c,n2,ac)=>S.tx.push({id:S.n++,k,a,d:dt,n:n2,acc:ac,c});
+ const cats=[['Housing',1452,cq],['Food',551,vs],['Bills',269,vs],['Transport',197,cq],['Shopping',180,cq],['Fun',132,vs]];
+ T('income',4800,MD(0,1),'Salary','Paycheque',cq);
+ T('expense',132,MD(0,7),'Fun','',vs);T('expense',180,MD(0,6),'Shopping','',cq);T('expense',269,MD(0,5),'Bills','',vs);T('expense',197,MD(0,4),'Transport','',cq);T('expense',551,MD(0,3),'Food','',vs);T('expense',1452,MD(0,2),'Housing','',cq);
+ for(let off=1;off<=5;off++){T('income',4800,MD(off,1),'Salary','Paycheque',cq);cats.forEach(([c,base,ac],i)=>{const v=Math.round(base*(0.94+((off*7+i*13)%12)/100));T('expense',v,MD(off,2+i),c,'',ac)})}
+ const snap={};for(let i=29;i>=0;i--){snap[addDays(tdy(),-i)]=i==0?-17329:40771}S.snap=snap;
+ S.goals=[{id:S.n++,name:'Emergency fund',target:15000,saved:12400,date:''}];
+ S.rec=[{id:S.n++,n:'Salary',a:4800,k:'income',freq:'monthly',next:MD(-1,1),c:'Salary',acc:cq},{id:S.n++,n:'Rent',a:1452,k:'expense',freq:'monthly',next:MD(-1,2),c:'Housing',acc:cq}];
+ S.mkt={last:'sample data',ts:Date.now(),news:[{id:S.n++,tk:'ENB',msg:'Dividend announced: $0.83/share, ex-date soon',when:tdy()}]};
+}
 
 save();render();
 if(navigator.onLine&&(!S.mkt.ts||Date.now()-S.mkt.ts>18e5)&&S.hold.length)setTimeout(()=>refreshMarket(false),1500);
