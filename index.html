@@ -66,7 +66,7 @@ function home(){
  const cats={};S.tx.filter(t=>t.k=='expense'&&t.d.slice(0,7)==m).forEach(t=>cats[t.c]=(cats[t.c]||0)+t.a);const cs=Object.entries(cats).sort((a,b)=>b[1]-a[1]),cm=cs.length?cs[0][1]:1;
  const cards=S.acc.filter(a=>a.t=='credit'&&a.lim>0),dv=sum(S.hold,h=>h.sh*h.div);
  return `<h1>Money</h1><div class="card hero"><small>NET WORTH</small><b>${f0(n)}</b><small>${dl==null?'Tracking starts today':(dl>=0?'▲ ':'▼ ')+f0(Math.abs(dl))+' since '+bk}</small>${line()}</div>`+annCard()+
- `<div class="g2"><div class="card"><small>Assets</small><div class="k up">${f0(cash()+sav()+inv())}</div></div><div class="card"><small>Debt</small><div class="k dn">${f0(debt())}</div></div></div>`+lockCard()+
+ `<div class="g2"><div class="card"><small>Assets</small><div class="k up">${f0(cash()+sav()+inv())}</div></div><div class="card"><small>Debt</small><div class="k dn">${f0(-debt())}</div></div></div>`+lockCard()+
  `<h2>Where your money sits</h2><div class="card">${donut([{n:'Cash',v:cash()},{n:'Savings',v:sav()},{n:'Investments',v:inv()}])}</div>`+
  `<h2>This month</h2><div class="g2"><div class="card"><small>Income</small><div class="k up">${f0(inc)}</div></div><div class="card"><small>Spent</small><div class="k dn">${f0(exp)}</div></div></div><div class="card"><div class="row"><small class="sp">Savings rate</small><b class="${sr!=null&&sr<0?'dn':'up'}">${sr==null?'–':sr+'%'}</b></div></div>`+
  `<div class="card">${mbars()}</div>`+
@@ -75,7 +75,7 @@ function home(){
  (dv>0?`<h2>Dividends</h2><div class="g2"><div class="card"><small>Per year</small><div class="k">${f0(dv)}</div></div><div class="card"><small>Per month</small><div class="k">${f0(dv/12)}</div></div></div>`:'')+budgetCard(m)+insights()}
 function accts(){
  let h=`<h1>Accounts</h1>`;
- Object.keys(T).forEach(t=>{const L=S.acc.filter(a=>a.t==t);if(!L.length)return;h+=`<h2>${T[t]} · ${f0(sum(L,a=>a.b))}</h2><div class="card">`+L.map(a=>`<div class="li"><div class="sp"><b>${esc(a.n)}</b>${a.lim?`<br><small>Limit ${f0(a.lim)}</small>`:''}</div><input class="mini" type="number" inputmode="decimal" value="${a.b}" onchange="setA(${a.id},this.value)"><button class="x" onclick="delA(${a.id})">${dq=='a'+a.id?'Sure?':'×'}</button></div>`).join('')+`</div>`});
+ Object.keys(T).forEach(t=>{const L=S.acc.filter(a=>a.t==t);if(!L.length)return;h+=`<h2>${T[t]} · ${f0(t=='credit'?-sum(L,a=>a.b):sum(L,a=>a.b))}</h2><div class="card">`+L.map(a=>`<div class="li"><div class="sp"><b>${esc(a.n)}</b>${a.t=='credit'?' <span class="tag" style="color:var(--bad)">Debt</span>':''}${a.lim?`<br><small>Limit ${f0(a.lim)}</small>`:''}</div><input class="mini" type="number" inputmode="decimal" value="${a.b}" onchange="setA(${a.id},this.value)"><button class="x" onclick="delA(${a.id})">${dq=='a'+a.id?'Sure?':'×'}</button></div>`).join('')+`</div>`});
  return h+`<h2>Add account</h2><div class="card"><div class="f"><input id="an" class="w" placeholder="Name (e.g. RBC Visa)"><select id="at">${Object.entries(T).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><input id="ab" type="number" inputmode="decimal" placeholder="Balance (owed, for cards)"><input id="al" class="w" type="number" inputmode="decimal" placeholder="Credit limit (cards only, optional)"><button class="btn w" onclick="addA()">Add account</button></div></div>`}
 function invest(){
  const v=inv(),c=sum(S.hold,h=>h.sh*h.cost),dv=sum(S.hold,h=>h.sh*h.div),g=v-c;
