@@ -97,9 +97,9 @@ function more(){return `<h1>More</h1><div class="card"><small>Currency</small><s
 function render(){document.getElementById('app').innerHTML={home,accts,invest,activity,more}[view]();
  document.getElementById('nav').innerHTML=[['home','🏠','Home'],['accts','🏦','Accounts'],['invest','📈','Invest'],['activity','🧾','Activity'],['more','⚙️','More']].map(([k,i,l])=>`<button class="${view==k?'on':''}" onclick="go('${k}')"><b>${i}</b>${l}</button>`).join('')}
 function go(v){dq=null;view=v;render();scrollTo(0,0)}
-function setA(id,v){A(id).b=num(v);save();render()}
+function setA(id,v){const a=A(id);a.b=num(v);if(a.t=='credit')a.b=Math.abs(a.b);save();render()}
 function delA(id){if(dq!='a'+id){dq='a'+id;render();return}S.acc=S.acc.filter(a=>a.id!=id);dq=null;save();render()}
-function addA(){const n=an.value.trim();if(!n)return;S.acc.push({id:S.n++,n,t:at.value,b:num(ab.value),lim:at.value=='credit'?num(al.value):0});save();render()}
+function addA(){const n=an.value.trim();if(!n)return;S.acc.push({id:S.n++,n,t:at.value,b:at.value=='credit'?Math.abs(num(ab.value)):num(ab.value),lim:at.value=='credit'?num(al.value):0});save();render()}
 function setH(id,k,v){S.hold.find(h=>h.id==id)[k]=num(v);save();render()}
 function delH(id){if(dq!='h'+id){dq='h'+id;render();return}S.hold=S.hold.filter(h=>h.id!=id);dq=null;save();render()}
 function addH(){const tk=ht.value.trim().toUpperCase();if(!tk||!num(hs.value))return;S.hold.push({id:S.n++,tk,sh:num(hs.value),cost:num(hc.value),px:num(hp.value)||num(hc.value),div:num(hd.value)});save();render()}
@@ -107,7 +107,7 @@ function addX(){const a=num(xa.value);if(!a||!xt.value)return;const t={id:S.n++,
 function delX(id){if(dq!='x'+id){dq='x'+id;render();return}const t=S.tx.find(x=>x.id==id);ap(t,-1);S.tx=S.tx.filter(x=>x.id!=id);dq=null;save();render()}
 function rs(){if(dq!='r'){dq='r';render();return}const cur=S.cur;S={n:1,cur,acc:[],hold:[],tx:[],snap:{},bud:{},rec:[],goals:[],lastBackup:null,theme:S.theme};dq=null;save();go('home')}
 function exp(){S.lastBackup=tdy();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='money-backup.json';a.click()}
-function imp(i){const f=i.files[0];if(!f)return;f.text().then(x=>{const d=JSON.parse(x);if(d&&d.acc){S=d;if(!S.bud)S.bud={};if(!S.rec)S.rec=[];if(!S.goals)S.goals=[];if(!S.mkt)S.mkt={last:null,news:[]};if(!S.learn)S.learn={};save();render()}}).catch(()=>{})}
+function imp(i){const f=i.files[0];if(!f)return;f.text().then(x=>{const d=JSON.parse(x);if(d&&d.acc){S=d;S.acc.forEach(a=>{if(a.t=='credit')a.b=Math.abs(+a.b||0)});if(!S.bud)S.bud={};if(!S.rec)S.rec=[];if(!S.goals)S.goals=[];if(!S.mkt)S.mkt={last:null,news:[]};if(!S.learn)S.learn={};save();render()}}).catch(()=>{})}
 
 (function(){let changed=false;const today=tdy();S.rec.forEach(r=>{let guard=0;while(r.next<=today&&guard<24){const t={id:S.n++,k:r.k,a:r.a,d:r.next,n:r.n+' (recurring)',acc:r.acc,c:r.c};if(r.k=='payment')t.card=r.card;ap(t,1);S.tx.push(t);r.next=nextDate(r.next,r.freq);changed=true;guard++}});if(changed)save();})();
 function catSum(m,c){return sum(S.tx.filter(t=>t.k=='expense'&&t.c==c&&t.d.slice(0,7)==m),t=>t.a)}
@@ -186,7 +186,7 @@ function applyShot(){
  let applied=0;const expAcc=S.acc.find(a=>a.t=='cash')||S.acc[0];
  _ocrRows.forEach((r,i)=>{const cb=document.getElementById('ocr'+i);if(!cb||!cb.checked)return;
   if(r.type=='holding'){const sh=num(document.getElementById('ocrsh'+i).value);if(!sh)return;const px=r.value&&sh?Math.round(r.value/sh*10000)/10000:0;const ex2=S.hold.find(h=>h.tk==r.tk);if(ex2){ex2.sh=sh;if(px)ex2.px=px}else S.hold.push({id:S.n++,tk:r.tk,sh,cost:px,px,div:0});applied++}
-  else if(r.type=='account'){const b=num(document.getElementById('ocrb'+i).value);const ex2=S.acc.find(a=>a.t==r.t);if(ex2)ex2.b=b;else S.acc.push({id:S.n++,n:r.name,t:r.t,b,lim:0});applied++}
+  else if(r.type=='account'){const b=num(document.getElementById('ocrb'+i).value);const ex2=S.acc.find(a=>a.t==r.t);const bb=r.t=='credit'?Math.abs(b):b;if(ex2)ex2.b=bb;else S.acc.push({id:S.n++,n:r.name,t:r.t,b:bb,lim:0});applied++}
   else{if(!expAcc)return;const a=num(document.getElementById('ocra'+i).value);if(!a)return;const t={id:S.n++,k:'expense',a,d:tdy(),n:r.n,acc:expAcc.id,c:r.c};ap(t,1);S.tx.push(t);applied++}});
  save();document.getElementById('scanstatus').innerHTML=`<small>Applied ${applied} item(s) ✓ — now tap Update prices in Invest to refresh values.</small>`;document.getElementById('scanreview').innerHTML='';setTimeout(render,900)}
 function expCsv(){const rows=[['date','type','category','note','amount','account']].concat(S.tx.slice().sort((a,b)=>a.d.localeCompare(b.d)).map(t=>[t.d,t.k,t.c,(t.n||'').replace(/,/g,' '),t.a,(A(t.acc)||{n:''}).n]));const csv=rows.map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='money-transactions-'+tdy()+'.csv';a.click()}
