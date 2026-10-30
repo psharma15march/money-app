@@ -75,6 +75,12 @@ h2{margin:20px 2px 9px}
 .mrow b{font-size:15px}
 @media (max-width:380px){.tiles{grid-template-columns:1fr}}
 @media (min-width:900px){main{padding-top:24px}}
+
+.catrow{margin-bottom:13px}
+.catrow:last-child{margin-bottom:0}
+.bar{height:9px}
+.k{font-size:25px}
+.lg{font-size:14.5px}
 </style></head><body>
 <main id="app"></main><nav id="nav"></nav>
 <script>
@@ -104,7 +110,7 @@ const arcs=it.map((i,k)=>{const l=i.v/t*L,s=`<circle cx="60" cy="60" r="${r}" fi
 return `<div class="row"><svg width="130" height="130" viewBox="0 0 120 120">${arcs}</svg><div class="sp">${it.map((i,k)=>`<div class="lg"><i style="background:${PAL[k%8]}"></i><span>${esc(i.n)}</span><b>${Math.round(i.v/t*100)}%</b></div>`).join('')}</div></div>`}
 function mbars(){const D=[];for(let i=5;i>=0;i--){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);const m=ym(d);D.push({m,d,i:tot(m,'income'),e:tot(m,'expense')})}
 const mx=Math.max(1,...D.flatMap(x=>[x.i,x.e]));
-return `<div style="display:flex;align-items:flex-end;gap:6px;height:104px;padding:0 2px">${D.map(x=>`<div style="flex:1;display:flex;align-items:flex-end;justify-content:center;gap:4px;height:100%"><div style="width:38%;max-width:26px;height:${Math.max(3,x.i/mx*100)}%;background:var(--up);border-radius:6px 6px 3px 3px"></div><div style="width:38%;max-width:26px;height:${Math.max(3,x.e/mx*100)}%;background:var(--dn);border-radius:6px 6px 3px 3px"></div></div>`).join('')}</div><div style="display:flex;gap:6px;padding:0 2px">${D.map(x=>`<div style="flex:1;text-align:center;font-size:11.5px;color:var(--mu);margin-top:5px">${x.d.toLocaleDateString(undefined,{month:'short'})}</div>`).join('')}</div><div class="lg"><i style="background:var(--up)"></i><span>Income</span><i style="background:var(--dn)"></i><span>Expenses</span></div>`}
+return `<div style="display:flex;align-items:flex-end;gap:6px;height:118px;padding:0 2px">${D.map(x=>`<div style="flex:1;display:flex;align-items:flex-end;justify-content:center;gap:4px;height:100%"><div style="width:38%;max-width:30px;height:${Math.max(3,x.i/mx*100)}%;background:var(--up);border-radius:6px 6px 3px 3px"></div><div style="width:38%;max-width:30px;height:${Math.max(3,x.e/mx*100)}%;background:var(--dn);border-radius:6px 6px 3px 3px"></div></div>`).join('')}</div><div style="display:flex;gap:6px;padding:0 2px">${D.map(x=>`<div style="flex:1;text-align:center;font-size:11.5px;color:var(--mu);margin-top:5px">${x.d.toLocaleDateString(undefined,{month:'short'})}</div>`).join('')}</div><div class="lg"><i style="background:var(--up)"></i><span>Income</span><i style="background:var(--dn)"></i><span>Expenses</span></div>`}
 function home(){
  if(!S.acc.length&&!S.hold.length)return `<h1>Quick Budget</h1><div class="card"><b>Start here</b><p style="color:var(--mu);font-size:14px;line-height:1.5">1. Accounts tab: add your chequing, savings and credit cards with today’s balances.<br>2. Invest tab: add your stocks with shares, price and dividend.<br>3. Activity tab: log income, spending and card payments — recurring salary and bills post themselves there.<br>Your net worth and charts build from that.</p><button class="btn g" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data to explore'}</button></div>`;
  const n=nw(),m=ym(new Date()),inc=tot(m,'income'),exp=tot(m,'expense'),sr=inc>0?Math.round((inc-exp)/inc*100):null,ks=Object.keys(S.snap).sort(),bk=ks[Math.max(0,ks.length-31)],dl=ks.length>1?n-S.snap[bk]:null;
@@ -115,9 +121,9 @@ function home(){
  `<h2>Where your money sits</h2><div class="card">${donut([{n:'Cash',v:cash()},{n:'Savings',v:sav()},{n:'Investments',v:inv()}])}</div>`+
  `<h2>This month</h2><div class="g3"><div class="card"><small>Income</small><div class="k up">${f0(inc)}</div></div><div class="card"><small>Spent</small><div class="k dn">${f0(exp)}</div></div><div class="card"><small>Saved</small><div class="k ${sr!=null&&sr<0?'dn':'up'}">${sr==null?'–':sr+'%'}</div></div></div>`+
  `<div class="card">${mbars()}</div>`+
- (cs.length?`<h2>Spending by category</h2><div class="card">${cs.map(([c,v],i)=>`<div class="row"><span class="sp" style="font-size:14.5px">${esc(c)}</span><b style="font-size:15px">${f0(v)}</b></div><div class="bar"><i style="width:${v/cm*100}%;background:${PAL[i%8]}"></i></div>`).join('')}</div>`:'')+
- (cards.length?`<h2>Credit utilization</h2><div class="card">${cards.map(a=>{const u=a.b/a.lim*100;return `<div class="row"><small class="sp">${esc(a.n)}</small><b style="font-size:13px" class="${u>30?'dn':'up'}">${Math.round(u)}%</b></div><div class="bar"><i style="width:${Math.min(100,u)}%;background:${u>30?'var(--dn)':'var(--up)'}"></i></div>`}).join('')}<small>Under 30% is the usual target.</small></div>`:'')+
- (dv>0?`<h2>Dividends</h2><div class="g2"><div class="card"><small>Per year</small><div class="k">${f0(dv)}</div></div><div class="card"><small>Per month</small><div class="k">${f0(dv/12)}</div></div></div>`:'')+annCard()+budgetCard(m)+insights()}
+ (cs.length?`<h2>Spending by category</h2><div class="card">${cs.map(([c,v],i)=>`<div class="catrow"><div class="row"><span class="sp" style="font-size:15.5px;color:var(--mu)">${esc(c)}</span><b style="font-size:16.5px">${f0(v)}</b></div><div class="bar"><i style="width:${v/cm*100}%;background:${PAL[i%8]}"></i></div></div>`).join('')}</div>`:'')+
+ (cards.length?`<h2>Credit utilization</h2><div class="card">${cards.map(a=>{const u=a.b/a.lim*100;return `<div class="catrow"><div class="row"><span class="sp" style="font-size:15.5px;color:var(--mu)">${esc(a.n)}</span><b style="font-size:16.5px" class="${u>30?'dn':'up'}">${Math.round(u)}%</b></div><div class="bar"><i style="width:${Math.min(100,u)}%;background:${u>30?'var(--dn)':'var(--up)'}"></i></div></div>`}).join('')}<div style="font-size:13px;color:var(--mu)">Under 30% is the usual target.</div></div>`:'')+
+ (dv>0?`<h2>Dividends</h2><div class="g2"><div class="card"><span style="font-size:14.5px;color:var(--mu)">Per year</span><div class="k">${f0(dv)}</div></div><div class="card"><span style="font-size:14.5px;color:var(--mu)">Per month</span><div class="k">${f0(dv/12)}</div></div></div>`:'')+annCard()+budgetCard(m)+insights()}
 function accts(){
  const cs=cash(),sv=sav(),ow=debt();
  const pos=S.acc.filter(a=>(a.t=='cash'||a.t=='savings')&&a.b>0),pt=sum(pos,a=>a.b);
