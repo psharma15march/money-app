@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Money — Budget & Net Worth</title>
+<style>
+:root{--bg:#f2f5f4;--card:#fff;--tx:#14181a;--mu:#66727a;--bd:#e3e8e6;--ac:#0f766e;--up:#16a34a;--dn:#dc2626;--warn:#d97706;box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1112;--card:#181c1e;--tx:#eef2f1;--mu:#93a0a6;--bd:#273033;--ac:#2dd4bf}}
+:root[data-theme="dark"]{--bg:#0e1112;--card:#181c1e;--tx:#eef2f1;--mu:#93a0a6;--bd:#273033;--ac:#2dd4bf}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:680px;margin:0 auto;padding:16px 16px 110px}
+h1{font-size:24px;margin:4px 0 12px}h2{font-size:13px;color:var(--mu);margin:20px 0 8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+small{color:var(--mu);font-size:12px}.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:12px}.sp{flex:1;min-width:0}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hero{background:linear-gradient(135deg,#0f766e,#115e59 60%,#134e4a);color:#fff;border:0}.hero small{color:#ffffffbb}.hero b{font-size:34px;display:block;margin:2px 0}
+.k{font-size:20px;font-weight:700}.up{color:var(--up)}.dn{color:var(--dn)}.warn{color:var(--warn)}
+.lg{display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 0}.lg i{width:10px;height:10px;border-radius:50%;flex:none}.lg span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{height:8px;border-radius:99px;background:var(--bd);overflow:hidden;margin:5px 0}.bar i{display:block;height:100%;border-radius:99px}
+.li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}.li:last-child{border:0}
+input,select,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:10px 11px;min-width:0;width:100%}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.f .w{grid-column:span 2}
+.btn{font:inherit;background:var(--ac);color:#fff;border:0;border-radius:12px;padding:11px 16px;font-weight:600;cursor:pointer;width:100%}.btn.g{background:var(--bg);color:var(--tx);border:1px solid var(--bd)}
+.chips{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap}.chip{flex:1;font:inherit;font-size:13px;padding:8px;border-radius:99px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer;white-space:nowrap}.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.x{background:none;border:0;color:var(--mu);font-size:18px;cursor:pointer}.mini{width:110px;text-align:right}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mu);font:inherit;font-size:10px;padding:9px 0 7px;cursor:pointer}nav button b{display:block;font-size:19px}nav .on{color:var(--ac);font-weight:700}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700}.pill.g{background:#dcfce7;color:#166534}.pill.r{background:#fee2e2;color:#991b1b}
+.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:12px;font-size:13px;line-height:1.5;margin-bottom:10px;color:#92400e}
+@media(prefers-color-scheme:dark){.notice{background:#29200a;color:#fcd34d;border-color:#78350f}}
+</style></head><body>
+<main id="app"></main><nav id="nav"></nav>
+<script>
+const KEY='sam-fin-v1',PAL=['#0f766e','#6366f1','#f59e0b','#ec4899','#0ea5e9','#84cc16','#f97316','#a855f7'];
+const EXC=['Housing','Groceries','Dining','Transport','Bills','Utilities','Subscriptions','Shopping','Health','Insurance','Personal','Fun','Other'],INC=['Salary','Business','Dividends','Rent','Other'];
+const NEEDS=['Housing','Groceries','Transport','Bills','Utilities','Insurance','Health'],WANTS=['Dining','Subscriptions','Shopping','Personal','Fun'];
+const RULES=[[/tim hortons|starbucks|mcdonald|burger|pizza|sushi|restaurant|cafe|coffee|a&w|subway|skip ?the ?dishes|doordash|uber ?eats|fantuan/i,'Dining'],[/save-on|superstore|loblaws|sobeys|safeway|freshco|no frills|t&t|grocery|groceries|costco|walmart|market/i,'Groceries'],[/netflix|spotify|apple|icloud|google one|youtube premium|prime|disney|hulu|subscription|membership|gym|goodlife/i,'Subscriptions'],[/bc hydro|fortis|hydro|electric|water bill|telus|rogers|bell|fido|koodo|internet|phone bill|shaw/i,'Utilities'],[/shell|petro|esso|chevron|gas station|translink|compass|uber(?! eats)|lyft|taxi|parking|icbc/i,'Transport'],[/insurance|icbc insurance/i,'Insurance'],[/pharmacy|shoppers drug|dental|dentist|clinic|doctor|physiotherapy/i,'Health'],[/amazon|ikea|best buy|canadian tire|dollarama|winners|mall|store/i,'Shopping'],[/rent|mortgage|landlord|strata/i,'Housing']];
+if(!S.learn)S.learn={};
+let S,view='home',dq=null,ex='expense',q='',mf='';
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.acc)S={n:1,cur:'CAD',acc:[],hold:[],tx:[],snap:{}};
+if(!S.bud)S.bud={}; if(!S.rec)S.rec=[]; if(!S.goals)S.goals=[]; if(!S.lastBackup)S.lastBackup=null; if(!S.theme)S.theme=''; if(!S.mkt)S.mkt={last:null,news:[]};
+if(S.theme)document.documentElement.dataset.theme=S.theme;
+const num=v=>parseFloat(v)||0,sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
+const tdy=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+const A=id=>S.acc.find(a=>a.id==id);
+const T={cash:'Chequing / cash',savings:'Savings',credit:'Credit card',tfsa:'TFSA',fhsa:'FHSA',rrsp:'RRSP / Pension',invest:'Non-registered / Investing'};
+const cash=()=>sum(S.acc.filter(a=>a.t=='cash'),a=>a.b),sav=()=>sum(S.acc.filter(a=>a.t=='savings'),a=>a.b),debt=()=>sum(S.acc.filter(a=>a.t=='credit'),a=>a.b),invAcc=()=>sum(S.acc.filter(a=>['tfsa','fhsa','rrsp','invest'].includes(a.t)),a=>a.b),inv=()=>sum(S.hold,h=>h.sh*h.px)+invAcc(),nw=()=>cash()+sav()+inv()-debt();
+const save=()=>{if(S.acc.length||S.hold.length)S.snap[tdy()]=Math.round(nw()*100)/100;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const fm=(n,d)=>new Intl.NumberFormat(undefined,{style:'currency',currency:S.cur,maximumFractionDigits:d}).format(n),f0=n=>fm(n,0),f2=n=>fm(n,2);
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const tot=(m,k)=>sum(S.tx.filter(t=>t.k==k&&t.d.slice(0,7)==m),t=>t.a);
+function ap(t,s){const a=A(t.acc);if(!a)return;if(t.k=='income')a.b+=s*t.a;else if(t.k=='expense')a.b+=a.t=='credit'?s*t.a:-s*t.a;else{const c=A(t.card);if(c)c.b-=s*t.a;a.b-=s*t.a}}
+function addDays(dstr,n){const d=new Date(dstr+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function nextDate(dstr,freq){if(freq=='weekly')return addDays(dstr,7);if(freq=='biweekly')return addDays(dstr,14);const d=new Date(dstr+'T12:00:00');d.setMonth(d.getMonth()+1);return d.toISOString().slice(0,10)}
+// Auto-post due recurring on load
+let postedRec=[];
+(function(){let changed=false;const today=tdy();S.rec.forEach(r=>{let guard=0;while(r.next<=today&&guard<24){const t={id:S.n++,k:r.k,a:r.a,d:r.next,n:r.n+' (recurring)',acc:r.acc,c:r.c};if(r.k=='payment'){t.card=r.card}ap(t,1);S.tx.push(t);postedRec.push(r.n+' '+f2(r.a));r.next=nextDate(r.next,r.freq);changed=true;guard++}});if(changed)save();})();
+function line(){const k=Object.keys(S.snap).sort().slice(-90),v=k.map(x=>S.snap[x]);if(v.length<2)return '<small>Your net worth chart fills in as you use the app on different days.</small>';
+const w=320,h=110,mn=Math.min(...v),r=(Math.max(...v)-mn)||1,d=v.map((y,i)=>(i?'L':'M')+(i/(v.length-1)*w).toFixed(1)+' '+(h-8-(y-mn)/r*(h-22)).toFixed(1)).join('');
+return `<svg viewBox="0 0 ${w} ${h}" width="100%"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><path d="${d}L${w} ${h}L0 ${h}Z" fill="url(#g)"/><path d="${d}" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+function donut(it){it=it.filter(i=>i.v>0);const t=sum(it,i=>i.v);if(t<=0)return '<small>Nothing to show yet.</small>';const r=48,L=2*Math.PI*r;let o=0;
+const arcs=it.map((i,k)=>{const l=i.v/t*L,s=`<circle cx="60" cy="60" r="${r}" fill="none" stroke="${PAL[k%8]}" stroke-width="18" stroke-dasharray="${l} ${L-l}" stroke-dashoffset="${-o}" transform="rotate(-90 60 60)"/>`;o+=l;return s}).join('');
+return `<div class="row"><svg width="130" height="130" viewBox="0 0 120 120">${arcs}</svg><div class="sp">${it.map((i,k)=>`<div class="lg"><i style="background:${PAL[k%8]}"></i><span>${esc(i.n)}</span><b>${Math.round(i.v/t*100)}%</b></div>`).join('')}</div></div>`}
+function mbars(){const D=[];for(let i=5;i>=0;i--){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);const m=ym(d);D.push({m,d,i:tot(m,'income'),e:tot(m,'expense')})}
+const mx=Math.max(1,...D.flatMap(x=>[x.i,x.e]));
+return `<svg viewBox="0 0 320 125" width="100%">${D.map((x,k)=>{const g=k*53+8,hi=x.i/mx*88,he=x.e/mx*88;return `<rect x="${g}" y="${98-hi}" width="18" height="${hi}" rx="4" fill="var(--up)"/><rect x="${g+21}" y="${98-he}" width="18" height="${he}" rx="4" fill="var(--dn)"/><text x="${g+20}" y="116" text-anchor="middle" font-size="10" fill="var(--mu)">${x.d.toLocaleDateString(undefined,{month:'short'})}</text>`}).join('')}</svg><div class="lg"><i style="background:var(--up)"></i><span>Income</span><i style="background:var(--dn)"></i><span>Expenses</span></div>`}
+function budgetRows(m){const ALL=[...new Set(EXC.concat(S.tx.filter(t=>t.k=='expense').map(t=>t.c)))];return ALL.map(c=>{const lim=num(S.bud[c]),spent=sum(S.tx.filter(t=>t.k=='expense'&&t.c==c&&t.d.slice(0,7)==m),t=>t.a);return{c,lim,spent,pct:lim>0?spent/lim*100:0}}).filter(x=>x.lim>0||x.spent>0)}
+function home(){
+ const needBackup=!S.lastBackup||((Date.now()-new Date(S.lastBackup))/864e5>14);
+ let notices='';
+ if(postedRec.length)notices+=`<div class="notice">✅ Auto-posted recurring: ${esc(postedRec.join(', '))}</div>`;
+ if(needBackup&&(S.tx.length>5))notices+=`<div class="notice">💾 Backup reminder: export from More tab. Clearing browser data deletes everything on this phone.</div>`;
+ if(!S.acc.length&&!S.hold.length)return `<h1>Money</h1>${notices}<div class="card"><b>Start here — 2 minutes</b><p style="color:var(--mu);font-size:14px;line-height:1.6">1. <b>Accounts:</b> add chequing, savings, credit cards, TFSA, FHSA with today's balances.<br>2. <b>Invest:</b> add stocks — shares, price, dividend/share/year.<br>3. <b>Activity:</b> log income & spending. Set up your bi-weekly salary as Recurring so it posts itself.<br>4. <b>Budget:</b> set a monthly limit per category.<br><br>Everything stays on this phone. No account, no sync, works offline.</p><button class="btn" onclick="go('accts')">Add my first account →</button></div>`;
+ const n=nw(),m=ym(new Date()),inc=tot(m,'income'),exp=tot(m,'expense'),sr=inc>0?Math.round((inc-exp)/inc*100):null,ks=Object.keys(S.snap).sort(),bk=ks[Math.max(0,ks.length-31)],dl=ks.length>1?n-S.snap[bk]:null;
+ const cats={};S.tx.filter(t=>t.k=='expense'&&t.d.slice(0,7)==m).forEach(t=>cats[t.c]=(cats[t.c]||0)+t.a);const cs=Object.entries(cats).sort((a,b)=>b[1]-a[1]),cm=cs.length?cs[0][1]:1;
+ const cards=S.acc.filter(a=>a.t=='credit'&&a.lim>0),dv=sum(S.hold,h=>h.sh*h.div);
+ const br=budgetRows(m),over=br.filter(x=>x.lim>0&&x.pct>=90);
+ const upcoming=S.rec.slice().sort((a,b)=>a.next.localeCompare(b.next)).slice(0,4);
+ const goalsHtml=S.goals.length?`<h2>Goals</h2>`+S.goals.map(g=>{const pct=g.target>0?Math.min(100,g.saved/g.target*100):0;return `<div class="card"><div class="row"><b class="sp">${esc(g.name)}</b><b>${f0(g.saved)} / ${f0(g.target)}</b></div><div class="bar"><i style="width:${pct}%;background:var(--ac)"></i></div><small>${pct.toFixed(0)}% ${g.date?'· target '+esc(g.date):''}</small></div>`}).join(''):'';
+ const mktNews=(S.mkt.news||[]).length?`<h2>Dividend announcements</h2><div class="card">${S.mkt.news.slice(0,5).map(x=>`<div class="li"><div class="sp"><b>${esc(x.tk)}</b> · ${esc(x.msg)}<br><small>${esc(x.when)}</small></div><button class="x" onclick="dismissNews(${x.id})">×</button></div>`).join('')}</div>`:'';
+ return `<h1>Money</h1>${notices}<div class="card hero"><small>NET WORTH</small><b>${f0(n)}</b><small>${dl==null?'Tracking starts today':(dl>=0?'▲ ':'▼ ')+f0(Math.abs(dl))+' since '+bk}</small>${line()}</div>`+
+ `<div class="g2"><div class="card"><small>Assets</small><div class="k up">${f0(cash()+sav()+inv())}</div></div><div class="card"><small>Debt</small><div class="k dn">${f0(debt())}</div></div></div>`+
+ `<div class="g2"><div class="card"><small>Usable (cash + TFSA)</small><div class="k">${f0(cash()+sav()+sum(S.acc.filter(a=>a.t=='tfsa'),a=>a.b)+sum(S.hold,h=>0))}</div></div><div class="card"><small>Locked (FHSA + RRSP)</small><div class="k">${f0(sum(S.acc.filter(a=>['fhsa','rrsp'].includes(a.t)),a=>a.b))}</div></div></div>`+
+ mktNews+`<h2>Where your money sits</h2><div class="card">${donut([{n:'Cash',v:cash()},{n:'Savings',v:sav()},{n:'Investments',v:inv()}])}</div>`+
+ `<h2>This month</h2><div class="g2"><div class="card"><small>Income</small><div class="k up">${f0(inc)}</div></div><div class="card"><small>Spent</small><div class="k dn">${f0(exp)}</div></div></div><div class="card"><div class="row"><small class="sp">Savings rate</small><b class="${sr!=null&&sr<0?'dn':'up'}">${sr==null?'–':sr+'%'}</b></div><small>Income minus spending, this month. 20%+ is a strong rate.</small></div>`+
+ `<div class="card">${mbars()}</div>`+
+ (over.length?`<h2>Budget watch</h2><div class="card">${over.map(x=>`<div class="row"><span class="sp">${esc(x.c)}</span><span class="pill ${x.pct>=100?'r':''}">${Math.round(x.pct)}% of ${f0(x.lim)}</span></div>`).join('')}<small>Tap Budget tab for full detail.</small></div>`:'')+
+ (br.length?`<h2>Budgets this month</h2><div class="card">${br.slice(0,5).map((x,i)=>`<div class="row"><small class="sp">${esc(x.c)} — ${f0(x.spent)}${x.lim?' / '+f0(x.lim):''}</small><b style="font-size:13px" class="${x.pct>=100?'dn':x.pct>=80?'warn':''}">${x.lim?Math.round(x.pct)+'%':''}</b></div><div class="bar"><i style="width:${Math.min(100,x.pct)}%;background:${x.pct>=100?'var(--dn)':x.pct>=80?'var(--warn)':'var(--ac)'}"></i></div>`).join('')}</div>`:'')+
+ insights()+(cs.length?`<h2>Spending by category</h2><div class="card">${cs.map(([c,v],i)=>`<div class="row"><small class="sp">${esc(c)}</small><b style="font-size:13px">${f0(v)}</b></div><div class="bar"><i style="width:${v/cm*100}%;background:${PAL[i%8]}"></i></div>`).join('')}</div>`:'')+
+ (upcoming.length?`<h2>Upcoming recurring</h2><div class="card">${upcoming.map(r=>`<div class="li"><div class="sp"><b>${esc(r.n)}</b><br><small>${esc(r.freq)} · next ${esc(r.next)}</small></div><b class="${r.k=='income'?'up':'dn'}">${r.k=='income'?'+':'−'}${f2(r.a)}</b></div>`).join('')}</div>`:'')+
+ goalsHtml+
+ (cards.length?`<h2>Credit utilization</h2><div class="card">${cards.map(a=>{const u=a.b/a.lim*100;return `<div class="row"><small class="sp">${esc(a.n)}</small><b style="font-size:13px" class="${u>30?'dn':'up'}">${Math.round(u)}%</b></div><div class="bar"><i style="width:${Math.min(100,u)}%;background:${u>30?'var(--dn)':'var(--up)'}"></i></div>`}).join('')}<small>Under 30% is the usual target — under 10% is even better for credit score.</small></div>`:'')+
+ (dv>0?`<h2>Dividends</h2><div class="g2"><div class="card"><small>Per year</small><div class="k">${f0(dv)}</div></div><div class="card"><small>Per month</small><div class="k">${f0(dv/12)}</div></div></div><div class="card"><small>Dividends are variable — re-check per-share amounts quarterly. Don't treat last month as guaranteed.</small></div>`:'')}
+function accts(){
+ let h=`<h1>Accounts</h1><div class="card"><small>Total net worth ${f0(nw())} · TFSA/FHSA/RRSP balances here are cash inside those accounts — stocks you list in Invest are counted separately, so don't double-count the same money in both places.</small></div>`;
+ Object.keys(T).forEach(t=>{const L=S.acc.filter(a=>a.t==t);if(!L.length)return;h+=`<h2>${T[t]} · ${f0(sum(L,a=>a.b))}</h2><div class="card">`+L.map(a=>`<div class="li"><div class="sp"><b>${esc(a.n)}</b>${a.lim?`<br><small>Limit ${f0(a.lim)}</small>`:''}</div><input class="mini" type="number" inputmode="decimal" value="${a.b}" onchange="setA(${a.id},this.value)"><button class="x" onclick="delA(${a.id})">${dq=='a'+a.id?'Sure?':'×'}</button></div>`).join('')+`</div>`});
+ return h+`<h2>Add account</h2><div class="card"><div class="f"><input id="an" class="w" placeholder="Name (e.g. RBC Visa, Wealthsimple TFSA)"><select id="at">${Object.entries(T).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><input id="ab" type="number" inputmode="decimal" placeholder="Balance (owed, for cards)"><input id="al" class="w" type="number" inputmode="decimal" placeholder="Credit limit (cards only, optional)"><button class="btn w" onclick="addA()">Add account</button></div></div>`}
+function budget(){
+ const m=ym(new Date()),br=budgetRows(m);const ins=insights();
+ let h=`<h1>Budget</h1>`+ins+`<div class="card"><small>Set a monthly limit per category. Bars turn amber at 80% and red over 100%. Based on this month: ${m}</small></div><div class="card">`;
+ h+=br.map(x=>{const c=x.c;const row=x;return `<div style="margin-bottom:14px"><div class="row"><b class="sp">${esc(c)}</b><small>${f0(row.spent)} spent</small></div><div class="bar"><i style="width:${Math.min(100,row.pct)}%;background:${row.pct>=100?'var(--dn)':row.pct>=80?'var(--warn)':'var(--ac)'}"></i></div><div class="row"><input type="number" inputmode="decimal" placeholder="Monthly limit" value="${S.bud[c]||''}" onchange="S.bud['${c}']=num(this.value);save();render()"><span style="font-size:13px">${row.lim?Math.round(row.pct)+'% used · '+f0(row.lim-row.spent)+' left':''}</span></div></div>`}).join('');
+ return h+`</div><div class="card"><small>Quick rule if you're unsure: 50% needs (housing, bills, food, transport), 30% wants, 20% savings/debt payoff — adjust to Vancouver rent, don't force it.</small></div>`}
+function invest(){
+ const v=sum(S.hold,h=>h.sh*h.px),c=sum(S.hold,h=>h.sh*h.cost),dv=sum(S.hold,h=>h.sh*h.div),g=v-c,totalInv=inv();
+ let h=`<h1>Investing</h1><div class="card"><div class="row"><div class="sp"><b>Auto prices & dividends</b><br><small id="mktstatus">${S.mkt.last?'Last updated '+esc(S.mkt.last):'Not updated yet'} · Free market feed, delayed prices. Works when online; last prices stay cached offline.</small></div></div><button class="btn" style="margin-top:8px" onclick="refreshMarket(true)">↻ Update prices &amp; dividends — free</button></div><div class="card hero"><small>PORTFOLIO VALUE (stocks listed here)</small><b>${f0(v)}</b><small>${g>=0?'▲ ':'▼ '}${f0(Math.abs(g))} (${c>0?(g/c*100).toFixed(1):0}%) vs cost · Total incl. TFSA/FHSA/RRSP cash: ${f0(totalInv)}</small></div>`;
+ if(S.hold.length){const top=S.hold.slice().sort((a,b)=>b.sh*b.px-a.sh*a.px)[0],topPct=v>0?top.sh*top.px/v*100:0;
+ h+=`<div class="card">${donut(S.hold.map(x=>({n:x.tk,v:x.sh*x.px})))}</div>`+(topPct>60?`<div class="notice">⚠️ Concentration: ${esc(top.tk)} is ${Math.round(topPct)}% of your listed stocks. One holding driving most of your income means one dividend cut hits hard.</div>`:'')+`<div class="g2"><div class="card"><small>Dividends / year</small><div class="k">${f0(dv)}</div></div><div class="card"><small>Yield on value</small><div class="k">${v>0?(dv/v*100).toFixed(2):0}%</div></div></div><h2>Holdings</h2>`+S.hold.map(x=>{const gl=x.sh*(x.px-x.cost);return `<div class="card"><div class="row"><b class="sp">${esc(x.tk)}</b><b>${f0(x.sh*x.px)}</b><button class="x" onclick="delH(${x.id})">${dq=='h'+x.id?'Sure?':'×'}</button></div><small class="${gl>=0?'up':'dn'}">${gl>=0?'▲':'▼'} ${f0(Math.abs(gl))} · yield ${x.px>0?(x.div/x.px*100).toFixed(2):0}% · div ${f2(x.sh*x.div)}/yr</small>${x.lastDiv?`<br><small>Latest distribution: ${f2(x.lastDiv.amt)}/share · ex-date ${esc(x.lastDiv.date)}${x.cur?' · priced in '+esc(x.cur):''}</small>`:''}${x.divNote?`<br><span class="pill">${esc(x.divNote)}</span>`:''}<div class="f"><div><small>Shares</small><input type="number" inputmode="decimal" value="${x.sh}" onchange="setH(${x.id},'sh',this.value)"></div><div><small>Price now</small><input type="number" inputmode="decimal" value="${x.px}" onchange="setH(${x.id},'px',this.value)"></div><div><small>Avg cost</small><input type="number" inputmode="decimal" value="${x.cost}" onchange="setH(${x.id},'cost',this.value)"></div><div><small>Div / share / yr</small><input type="number" inputmode="decimal" value="${x.div}" onchange="setH(${x.id},'div',this.value)"></div></div></div>`}).join('')}
+ return h+`<h2>Add stock</h2><div class="card"><div class="f"><input id="ht" placeholder="Ticker (e.g. MSTE.TO, NVDA, RY.TO)"><input id="hs" type="number" inputmode="decimal" placeholder="Shares"><input id="hc" type="number" inputmode="decimal" placeholder="Avg cost / share"><input id="hp" type="number" inputmode="decimal" placeholder="Price now"><input id="hd" class="w" type="number" inputmode="decimal" placeholder="Dividend per share per year"><button class="btn w" onclick="addH()">Add stock</button></div><small>Add <b>.TO</b> for Toronto-listed (MSTE.TO, BIGY.TO). Then tap Update in Invest and price + trailing-12-month dividends fill in free from market data. Manual entry still works offline. For monthly payers the annual figure is the real last-12-months total, not one month × 12 — distributions change.</small></div>`}
+function activity(){
+ const k=['expense','income','payment'],cs=ex=='income'?INC:EXC,nc=S.acc.filter(a=>a.t!='credit'),cc=S.acc.filter(a=>a.t=='credit'),pool=ex=='expense'?S.acc:nc;
+ const o=a=>`<option value="${a.id}">${esc(a.n)}</option>`;
+ let h=`<h1>Activity</h1><div class="card"><div class="chips">${k.map(x=>`<button class="chip ${x==ex?'on':''}" onclick="ex='${x}';render()">${x}</button>`).join('')}</div><div class="f"><input id="xa" type="number" inputmode="decimal" placeholder="Amount"><input id="xd" type="date" value="${tdy()}">${ex!='payment'?`<select id="xc">${cs.map(c=>`<option>${c}</option>`).join('')}</select>`:`<select id="xk">${cc.map(o).join('')}</select>`}<select id="xt">${pool.map(o).join('')}</select><input id="xn" class="w" placeholder="Note / store name — category fills itself" oninput="autoCat()"><button class="btn w" onclick="addX()">Add ${ex}</button></div>${S.acc.length?'':'<small>Add an account first.</small>'}</div>`;
+ // Recurring
+ h+=`<h2>Recurring — auto-posts when due</h2><div class="card">`+(S.rec.length?S.rec.map(r=>`<div class="li"><div class="sp"><b>${esc(r.n)}</b><br><small>${esc(r.freq)} · next ${esc(r.next)} · ${esc(r.c)}</small></div><b>${f2(r.a)}</b><button class="x" onclick="delR(${r.id})">${dq=='r'+r.id?'Sure?':'×'}</button></div>`).join(''):'<small>No recurring yet. Add your bi-weekly salary and monthly bills here and you stop re-typing them.</small>')+`<div class="f"><input id="rn" class="w" placeholder="Name (e.g. Salary, Rent, Phone)"><input id="ra" type="number" inputmode="decimal" placeholder="Amount"><select id="rk"><option value="income">Income</option><option value="expense">Expense</option></select><select id="rf"><option value="biweekly">Every 2 weeks</option><option value="monthly">Monthly</option><option value="weekly">Weekly</option></select><input id="rd" type="date" value="${tdy()}"><select id="rc">${EXC.concat(INC).map(c=>`<option>${c}</option>`).join('')}</select><select id="rt">${S.acc.map(o).join('')}</select><button class="btn w" onclick="addR()">Add recurring</button></div></div>`;
+ // Search + list
+ let L=S.tx.slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id);
+ if(q)L=L.filter(t=>(t.c+' '+(t.n||'')+' '+(A(t.acc)||{n:''}).n).toLowerCase().includes(q.toLowerCase()));
+ if(mf)L=L.filter(t=>t.d.slice(0,7)==mf);
+ h+=`<h2>Recent</h2><div class="card"><div class="f" style="margin:0 0 8px"><input placeholder="Search note, category, account…" value="${esc(q)}" oninput="q=this.value;renderListOnly()"><input type="month" value="${mf}" onchange="mf=this.value;render()"></div><div id="txlist">`;
+ h+=txListHtml(L.slice(0,80));
+ return h+'</div></div>'}
+function txListHtml(L){return L.length?L.map(t=>`<div class="li"><div class="sp"><b>${esc(t.c)}</b>${t.n?' · '+esc(t.n):''}<br><small>${t.d} · ${esc((A(t.acc)||{n:'deleted'}).n)}</small></div><b class="${t.k=='income'?'up':t.k=='expense'?'dn':''}">${t.k=='income'?'+':t.k=='expense'?'−':''}${f2(t.a)}</b><button class="x" onclick="delX(${t.id})">${dq=='x'+t.id?'Sure?':'×'}</button></div>`).join(''):'<small>No entries match.</small>'}
+function renderListOnly(){let L=S.tx.slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id);if(q)L=L.filter(t=>(t.c+' '+(t.n||'')+' '+(A(t.acc)||{n:''}).n).toLowerCase().includes(q.toLowerCase()));if(mf)L=L.filter(t=>t.d.slice(0,7)==mf);const el=document.getElementById('txlist');if(el)el.innerHTML=txListHtml(L.slice(0,80))}
+function more(){
+ const months=[...new Set(S.tx.map(t=>t.d.slice(0,7)))].sort().reverse();
+ return `<h1>More</h1>
+ <div class="card"><div class="row"><span class="sp"><b>Appearance</b><br><small>Follow system, light, or dark</small></span><select style="width:140px" onchange="S.theme=this.value;document.documentElement.dataset.theme=this.value;save()"><option value="" ${!S.theme?'selected':''}>System</option><option value="light" ${S.theme=='light'?'selected':''}>Light</option><option value="dark" ${S.theme=='dark'?'selected':''}>Dark</option></select></div></div>
+ <div class="card"><small>Currency</small><select onchange="S.cur=this.value;save();render()">${['CAD','USD','EUR','GBP','INR','AUD'].map(c=>`<option ${c==S.cur?'selected':''}>${c}</option>`).join('')}</select></div>
+ <h2>Goals</h2><div class="card">${S.goals.length?S.goals.map(g=>`<div class="li"><div class="sp"><b>${esc(g.name)}</b><br><small>${f0(g.saved)} of ${f0(g.target)} ${g.date?'· by '+esc(g.date):''}</small></div><input class="mini" type="number" value="${g.saved}" onchange="setG(${g.id},this.value)"><button class="x" onclick="delG(${g.id})">${dq=='g'+g.id?'Sure?':'×'}</button></div>`).join(''):'<small>No goals yet — e.g. Emergency fund $10,000, First home, $100k/year income tracker.</small>'}<div class="f"><input id="gn" class="w" placeholder="Goal name"><input id="gt" type="number" placeholder="Target $"><input id="gs" type="number" placeholder="Saved so far $"><input id="gd" type="date"><button class="btn w" onclick="addG()">Add goal</button></div></div>
+ <h2>Import from screenshot</h2><div class="card"><small>Pick a screenshot of your holdings, account balances, or recent expenses. The app scans it <b>on this phone</b> (free, first scan downloads the scanner and needs internet; after that it's cached). You review and fix every number before anything is saved — scanning can misread digits, so nothing applies automatically.</small><div class="f"><label class="btn g w" style="text-align:center;cursor:pointer;display:block">📷 Choose screenshot<input type="file" accept="image/*" hidden onchange="scanShot(this)"></label></div><div id="scanstatus" style="margin-top:8px"><small>No screenshot chosen yet.</small></div><div id="scanreview"></div></div>
+<h2>Backup — do this weekly</h2><div class="card"><div class="f"><button class="btn g" onclick="exp()">Export backup (JSON)</button><button class="btn g" onclick="expCsv()">Export CSV</button><label class="btn g" style="text-align:center;cursor:pointer;display:block">Import JSON<input type="file" accept=".json" hidden onchange="imp(this)"></label></div><small>Last backup: ${S.lastBackup?esc(S.lastBackup):'never'} · JSON restores everything. CSV is for Excel / your client tracker. Clearing browser/site data deletes everything — there is no cloud copy.</small></div>
+ <h2>Install & offline</h2><div class="card" style="font-size:14px;line-height:1.6;color:var(--mu)"><b style="color:var(--tx)">Android (Chrome):</b> open this page → ⋮ menu → <b>Install app / Add to Home screen</b> → open it once online. After that it works fully offline, data stays on the phone.<br><br><b style="color:var(--tx)">iPhone (Safari):</b> Share → <b>Add to Home Screen</b> → open once. Works offline after that.<br><br>Net worth = cash + savings + TFSA/FHSA/RRSP cash + stocks − card balances.</div>
+ <div class="card"><button class="btn g dn" onclick="rs()">${dq=='r'?'Tap again to erase everything':'Erase all data'}</button></div>`}
+function render(){document.getElementById('app').innerHTML={home,accts,budget,invest,activity,more}[view]();
+ document.getElementById('nav').innerHTML=[['home','🏠','Home'],['accts','🏦','Accounts'],['budget','🎯','Budget'],['invest','📈','Invest'],['activity','🧾','Activity'],['more','⚙️','More']].map(([k,i,l])=>`<button class="${view==k?'on':''}" onclick="go('${k}')"><b>${i}</b>${l}</button>`).join('')}
+function go(v){dq=null;view=v;render();scrollTo(0,0)}
+function setA(id,v){A(id).b=num(v);save();render()}
+function delA(id){if(dq!='a'+id){dq='a'+id;render();return}S.acc=S.acc.filter(a=>a.id!=id);dq=null;save();render()}
+function addA(){const n=document.getElementById('an').value.trim();if(!n)return;S.acc.push({id:S.n++,n,t:document.getElementById('at').value,b:num(document.getElementById('ab').value),lim:document.getElementById('at').value=='credit'?num(document.getElementById('al').value):0});save();render()}
+function setH(id,k,v){S.hold.find(h=>h.id==id)[k]=num(v);save();render()}
+function delH(id){if(dq!='h'+id){dq='h'+id;render();return}S.hold=S.hold.filter(h=>h.id!=id);dq=null;save();render()}
+function addH(){const tk=document.getElementById('ht').value.trim().toUpperCase();if(!tk||!num(document.getElementById('hs').value))return;S.hold.push({id:S.n++,tk,sh:num(document.getElementById('hs').value),cost:num(document.getElementById('hc').value),px:num(document.getElementById('hp').value)||num(document.getElementById('hc').value),div:num(document.getElementById('hd').value)});save();render()}
+function addX(){const a=num(document.getElementById('xa').value);const xtEl=document.getElementById('xt');if(!a||!xtEl||!xtEl.value)return;const t={id:S.n++,k:ex,a,d:document.getElementById('xd').value||tdy(),n:document.getElementById('xn').value.trim(),acc:+xtEl.value,c:ex=='payment'?'Card payment':document.getElementById('xc').value};if(ex=='payment'){const xk=document.getElementById('xk');if(!xk||!xk.value)return;t.card=+xk.value}ap(t,1);S.tx.push(t);if(t.k=='expense'&&t.n){const key=t.n.toLowerCase().trim();S.learn[key]=t.c;const k2=key.split(' ').slice(0,2).join(' ');if(k2)S.learn[k2]=t.c}save();render()}
+function delX(id){if(dq!='x'+id){dq='x'+id;render();return}const t=S.tx.find(x=>x.id==id);if(t)ap(t,-1);S.tx=S.tx.filter(x=>x.id!=id);dq=null;save();render()}
+function addR(){const n=document.getElementById('rn').value.trim(),a=num(document.getElementById('ra').value),rt=document.getElementById('rt');if(!n||!a||!rt.value)return;S.rec.push({id:S.n++,n,a,k:document.getElementById('rk').value,freq:document.getElementById('rf').value,next:document.getElementById('rd').value||tdy(),c:document.getElementById('rc').value,acc:+rt.value});save();render()}
+function delR(id){if(dq!='r'+id){dq='r'+id;render();return}S.rec=S.rec.filter(r=>r.id!=id);dq=null;save();render()}
+function addG(){const n=document.getElementById('gn').value.trim();if(!n)return;S.goals.push({id:S.n++,name:n,target:num(document.getElementById('gt').value),saved:num(document.getElementById('gs').value),date:document.getElementById('gd').value});save();render()}
+function setG(id,v){S.goals.find(g=>g.id==id).saved=num(v);save();render()}
+function delG(id){if(dq!='g'+id){dq='g'+id;render();return}S.goals=S.goals.filter(g=>g.id!=id);dq=null;save();render()}
+function rs(){if(dq!='r'){dq='r';render();return}const cur=S.cur;S={n:1,cur,acc:[],hold:[],tx:[],snap:{},bud:{},rec:[],goals:[],lastBackup:null,theme:S.theme};dq=null;save();go('home')}
+function exp(){S.lastBackup=tdy();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download='money-backup-'+tdy()+'.json';a.click();setTimeout(render,400)}
+function expCsv(){const rows=[['date','type','category','note','amount','account']].concat(S.tx.slice().sort((a,b)=>a.d.localeCompare(b.d)).map(t=>[t.d,t.k,t.c,(t.n||'').replace(/,/g,' '),t.a,(A(t.acc)||{n:''}).n]));const csv=rows.map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='money-transactions-'+tdy()+'.csv';a.click()}
+function imp(i){const f=i.files[0];if(!f)return;f.text().then(x=>{const d=JSON.parse(x);if(d&&d.acc){if(!d.bud)d.bud={};if(!d.rec)d.rec=[];if(!d.goals)d.goals=[];S=d;save();render();alert('Backup restored ✓')}}).catch(()=>alert('That file could not be read'))}
+
+
+function catSum(m,c){return sum(S.tx.filter(t=>t.k=='expense'&&t.c==c&&t.d.slice(0,7)==m),t=>t.a)}
+function prevMonths(n){const out=[];for(let i=1;i<=n;i++){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);out.push(ym(d))}return out}
+function autoCat(){if(ex=='payment')return;const nEl=document.getElementById('xn'),cEl=document.getElementById('xc');if(!nEl||!cEl)return;const v=nEl.value.toLowerCase().trim();if(v.length<3)return;const learned=S.learn[v]||S.learn[v.split(' ').slice(0,2).join(' ')];if(learned){cEl.value=learned;return}for(const[re,c]of RULES){if(re.test(v)){if(EXC.includes(c))cEl.value=c;return}}}
+function insights(){
+ const m=ym(new Date()),p3=prevMonths(3),expTx=S.tx.filter(t=>t.k=='expense');
+ if(expTx.length<8)return `<div class="card"><b>Where you can save</b><p style="color:var(--mu);font-size:14px;line-height:1.5">Log a few weeks of spending (you have ${expTx.length} expense${expTx.length==1?'':'s'}) and this fills with real suggestions from your own numbers — categories creeping up, subscriptions total, small-purchase leaks, and what it takes to hit a 20% savings rate. Nothing here is generic advice; it's all calculated from what you log.</p></div>`;
+ const sug=[];
+ const cats=[...new Set(EXC.concat(expTx.map(t=>t.c)))];
+ cats.forEach(c=>{const cur=catSum(m,c);if(cur<=0)return;const past=p3.map(pm=>catSum(pm,c));const monthsWith=past.filter(x=>x>0).length||1;const avg=past.reduce((a,b)=>a+b,0)/monthsWith;
+   if(avg>0&&cur>avg*1.2&&(cur-avg)>=20)sug.push({save:cur-avg,txt:`<b>${esc(c)}</b> is ${f0(cur)} this month vs your ${f0(avg)} average — back to average saves <b>${f0(cur-avg)}/mo</b>`});
+   const lim=num(S.bud[c]);if(lim>0&&cur>lim)sug.push({save:cur-lim,txt:`<b>${esc(c)}</b> is ${f0(cur-lim)} over its ${f0(lim)} budget`})});
+ const subTx=expTx.filter(t=>t.c=='Subscriptions'&&t.d.slice(0,7)==m);const subRec=S.rec.filter(r=>r.k=='expense'&&(r.c=='Subscriptions'||/netflix|spotify|prime|icloud|disney|gym|membership/i.test(r.n)));
+ const subMo=sum(subTx,t=>t.a)+sum(subRec,r=>r.freq=='monthly'?r.a:r.freq=='weekly'?r.a*4.33:r.a/2);
+ if(subMo>=15)sug.push({save:subMo,txt:`<b>Subscriptions</b> run about ${f0(subMo)}/mo — that's <b>${f0(subMo*12)}/yr</b>. Worth a once-a-year “do I still use this?” pass`});
+ cats.forEach(c=>{const small=expTx.filter(t=>t.k=='expense'&&t.c==c&&t.d.slice(0,7)==m&&t.a<15);if(small.length>=5)sug.push({save:sum(small,t=>t.a),txt:`<b>${esc(c)} small leaks:</b> ${small.length} purchases under $15 this month add up to ${f0(sum(small,t=>t.a))}`})});
+ const inc=tot(m,'income'),exp=tot(m,'expense');
+ if(inc>0){const need=exp-(inc*0.8);const sr=(inc-exp)/inc*100;if(sr<20&&need>0)sug.push({save:need,txt:`Savings rate is ${Math.round(sr)}%. Spending <b>${f0(need)} less</b> this month would hit 20%`})}
+ sug.sort((a,b)=>b.save-a.save);
+ const needs=sum(cats.filter(c=>NEEDS.includes(c)),c=>catSum(m,c)),wants=sum(cats.filter(c=>WANTS.includes(c)),c=>catSum(m,c));
+ const top3=expTx.filter(t=>t.d.slice(0,7)==m).slice().sort((a,b)=>b.a-a.a).slice(0,3);
+ let h=`<h2>Where you can save</h2><div class="card">`;
+ h+=sug.length?sug.slice(0,6).map(x=>`<div class="li"><div class="sp" style="font-size:14px">💡 ${x.txt}</div></div>`).join(''):'<small>No red flags this month — spending is in line with your recent averages. Nice.</small>';
+ if(exp>0&&(needs+wants)>0)h+=`<div style="margin-top:10px"><div class="row"><small class="sp">Needs ${f0(needs)}</small><small>Wants ${f0(wants)}</small></div><div class="bar"><i style="width:${Math.round(needs/(needs+wants)*100)}%;background:var(--ac)"></i></div><small>Reference only: the classic split aims for wants under ~30% of take-home. Vancouver housing skews it — use the trend, not the rule.</small></div>`;
+ if(top3.length)h+=`<div style="margin-top:8px"><small>Biggest this month: ${top3.map(t=>esc(t.c)+' '+f0(t.a)).join(' · ')}</small></div>`;
+ return h+'</div>'}
+
+function ysym(tk){tk=String(tk||'').toUpperCase().trim();return tk}
+async function fetchQuote(sym){
+ const url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?range=1y&interval=1d&events=div';
+ const tries=[url,'https://api.allorigins.win/raw?url='+encodeURIComponent(url)];
+ for(const u of tries){try{const r=await fetch(u);if(!r.ok)continue;const j=await r.json();const res=j&&j.chart&&j.chart.result&&j.chart.result[0];if(res&&res.meta&&res.meta.regularMarketPrice!=null)return res}catch(e){}}
+ return null}
+
+let _ocrRows=[];
+function parseShotText(text){
+ const rows=[];const KNOWN=['MSTE','BIGY','HHIC','YTSL','NVDA','NOK','RY','TD','BNS','BMO','CM','ENB','CNR','SHOP','XEQT','VEQT','VFV','HXQ','ZSP'];
+ const lines=text.split(/\n/).map(x=>x.trim()).filter(Boolean);
+ lines.forEach(ln=>{
+   const money=[...ln.matchAll(/\$?\s?([\d]{1,3}(?:,[\d]{3})*(?:\.\d{2})|[\d]+\.\d{2})/g)].map(m=>num(m[1].replace(/,/g,'')));
+   const acctM=ln.match(/(TFSA|FHSA|RRSP|RESP|Chequing|Checking|Savings|Cash|Non-registered)/i);
+   const tkM=ln.toUpperCase().match(/\b([A-Z]{2,6})(\.TO)?\b/g);
+   const tk=tkM?tkM.map(t=>t.replace('.TO','')).find(t=>KNOWN.includes(t)||S.hold.some(h=>h.tk.replace('.TO','')==t)):null;
+   if(tk&&money.length){const val=money[money.length-1];const shM=ln.match(/([\d,]+\.\d{2,4}|[\d,]+)\s*(shares|share|units)?/i);let shares=money.length>1?money[0]:0;if(shares===val)shares=0;rows.push({type:'holding',tk:tk+(ln.toUpperCase().includes('.TO')||['MSTE','BIGY','HHIC','YTSL','RY','TD','BNS','BMO','CM','ENB','CNR','XEQT','VEQT','VFV','HXQ','ZSP'].includes(tk)?'.TO':''),shares,value:val,src:ln});return}
+   if(acctM&&money.length){const map={TFSA:'tfsa',FHSA:'fhsa',RRSP:'rrsp',RESP:'savings',CHEQUING:'cash',CHECKING:'cash',SAVINGS:'savings',CASH:'cash','NON-REGISTERED':'invest'};rows.push({type:'account',name:acctM[1].toUpperCase()+' (from screenshot)',t:map[acctM[1].toUpperCase()]||'cash',b:money[money.length-1],src:ln});return}
+   if(money.length&&ln.length>3&&!tk){let cat='Other';for(const[re,c]of RULES){if(re.test(ln.toLowerCase())){cat=c;break}}rows.push({type:'expense',a:money[money.length-1],n:ln.replace(/\$?[\d,]+\.\d{2}/g,'').trim().slice(0,40)||'Expense',c:cat,src:ln})}
+ });
+ return rows}
+async function scanShot(inp){
+ const f=inp.files[0];if(!f)return;const st=document.getElementById('scanstatus'),rv=document.getElementById('scanreview');
+ st.innerHTML='<small>Scanning… first time downloads the scanner (~a minute on slow data). Keep the app open.</small>';rv.innerHTML='';
+ try{
+  if(!window.Tesseract){await new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
+  const out=await Tesseract.recognize(f,'eng');const text=out.data.text;
+  _ocrRows=parseShotText(text);
+  if(!_ocrRows.length){st.innerHTML='<small>Could not find holdings, balances or expenses in that image. Try a clearer, straight-on screenshot — or add it manually. Nothing was changed.</small>';return}
+  st.innerHTML=`<small>Found ${_ocrRows.length} item(s). <b>Check every number</b>, untick anything wrong, then Apply.</small>`;
+  rv.innerHTML=_ocrRows.map((r,i)=>`<div class="li"><input type="checkbox" id="ocr${i}" checked style="width:auto"><div class="sp" style="font-size:13px">${r.type=='holding'?`<b>${esc(r.tk)}</b> shares <input type="number" step="any" id="ocrsh${i}" value="${r.shares||''}" style="width:100px;display:inline-block"> value $${esc(String(r.value))}`:r.type=='account'?`<b>${esc(r.name)}</b> balance <input type="number" step="any" id="ocrb${i}" value="${r.b}" style="width:110px;display:inline-block">`:`Expense <input type="number" step="any" id="ocra${i}" value="${r.a}" style="width:90px;display:inline-block"> ${esc(r.n)} · ${esc(r.c)}`}<br><small>from: ${esc(r.src.slice(0,60))}</small></div></div>`).join('')+`<button class="btn" onclick="applyShot()">Apply ticked items</button>`;
+ }catch(e){st.innerHTML='<small>Scanner could not run — check your connection for the first download, then try again. Nothing was changed.</small>'}}
+function applyShot(){
+ let applied=0;const expAcc=S.acc.find(a=>a.t=='cash')||S.acc[0];
+ _ocrRows.forEach((r,i)=>{const cb=document.getElementById('ocr'+i);if(!cb||!cb.checked)return;
+  if(r.type=='holding'){const sh=num(document.getElementById('ocrsh'+i).value);if(!sh)return;const px=r.value&&sh?Math.round(r.value/sh*10000)/10000:0;const ex2=S.hold.find(h=>h.tk==r.tk);if(ex2){ex2.sh=sh;if(px)ex2.px=px}else S.hold.push({id:S.n++,tk:r.tk,sh,cost:px,px,div:0});applied++}
+  else if(r.type=='account'){const b=num(document.getElementById('ocrb'+i).value);const ex2=S.acc.find(a=>a.t==r.t);if(ex2)ex2.b=b;else S.acc.push({id:S.n++,n:r.name,t:r.t,b,lim:0});applied++}
+  else{if(!expAcc)return;const a=num(document.getElementById('ocra'+i).value);if(!a)return;const t={id:S.n++,k:'expense',a,d:tdy(),n:r.n,acc:expAcc.id,c:r.c};ap(t,1);S.tx.push(t);applied++}});
+ save();document.getElementById('scanstatus').innerHTML=`<small>Applied ${applied} item(s) ✓ — now tap Update prices in Invest to refresh values.</small>`;document.getElementById('scanreview').innerHTML='';setTimeout(render,900)}
+
+async function refreshMarket(manual){
+ const st=document.getElementById('mktstatus'); if(st)st.textContent='Updating…';
+ let ok=0,fail=[];
+ for(const h of S.hold){
+   let res=await fetchQuote(h.tk);
+   if(!res&&!h.tk.includes('.'))res=await fetchQuote(h.tk+'.TO');
+   if(!res){fail.push(h.tk);continue}
+   const meta=res.meta;h.px=meta.regularMarketPrice;h.cur=meta.currency||'';
+   const ev=res.events&&res.events.dividends?Object.values(res.events.dividends):[];
+   ev.sort((a,b)=>a.date-b.date);
+   if(ev.length){const latest=ev[ev.length-1];const ld={amt:latest.amount,date:new Date(latest.date*1000).toISOString().slice(0,10)};
+     const cutoff=Date.now()/1000-365*86400;const ttm=ev.filter(x=>x.date>=cutoff).reduce((s2,x)=>s2+x.amount,0);
+     if(h.lastDiv&&h.lastDiv.date!==ld.date){const chg=h.lastDiv.amt!==ld.amt;S.mkt.news.unshift({id:S.n++,tk:h.tk,msg:(chg?'New distribution announced: ':'Distribution paid/recorded: ')+f2(ld.amt)+'/share, ex-date '+ld.date,when:tdy()});h.divNote=chg?'Distribution changed':'New distribution'}
+     h.lastDiv=ld; if(ttm>0)h.div=Math.round(ttm*10000)/10000;}
+   ok++}
+ S.mkt.last=new Date().toLocaleString();S.mkt.news=S.mkt.news.slice(0,20);save();render();
+ if(manual)alert(ok?('Updated '+ok+' holding(s) ✓'+(fail.length?' Could not fetch: '+fail.join(', '):'')):'Could not reach the free market feed. Check connection — your saved prices are unchanged.')}
+function dismissNews(id){S.mkt.news=S.mkt.news.filter(x=>x.id!=id);save();render()}
+save();render();
+if(navigator.onLine&&(!S.mkt.last||(Date.now()-new Date(S.mkt.last))/36e5>12)&&S.hold.length)setTimeout(()=>refreshMarket(false),1500);
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('sw.js').catch(()=>{});let refreshing=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!refreshing){refreshing=true;location.reload()}})}
+</script></body></html>
