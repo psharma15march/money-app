@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Money</title>
+<title>Quick Budget</title>
 <style>
 :root{--bg:#f2f5f4;--card:#fff;--tx:#14181a;--mu:#66727a;--bd:#e3e8e6;--ac:#0f766e;--up:#16a34a;--dn:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1112;--card:#181c1e;--tx:#eef2f1;--mu:#93a0a6;--bd:#273033;--ac:#2dd4bf}}
@@ -61,11 +61,11 @@ function mbars(){const D=[];for(let i=5;i>=0;i--){const d=new Date();d.setDate(1
 const mx=Math.max(1,...D.flatMap(x=>[x.i,x.e]));
 return `<svg viewBox="0 0 320 125" width="100%">${D.map((x,k)=>{const g=k*53+8,hi=x.i/mx*88,he=x.e/mx*88;return `<rect x="${g}" y="${98-hi}" width="18" height="${hi}" rx="4" fill="var(--up)"/><rect x="${g+21}" y="${98-he}" width="18" height="${he}" rx="4" fill="var(--dn)"/><text x="${g+20}" y="116" text-anchor="middle" font-size="10" fill="var(--mu)">${x.d.toLocaleDateString(undefined,{month:'short'})}</text>`}).join('')}</svg><div class="lg"><i style="background:var(--up)"></i><span>Income</span><i style="background:var(--dn)"></i><span>Expenses</span></div>`}
 function home(){
- if(!S.acc.length&&!S.hold.length)return `<h1>Money</h1><div class="card"><b>Start here</b><p style="color:var(--mu);font-size:14px;line-height:1.5">1. Accounts tab: add your chequing, savings and credit cards with today’s balances.<br>2. Invest tab: add your stocks with shares, price and dividend.<br>3. Activity tab: log income, spending and card payments — recurring salary and bills post themselves there.<br>Your net worth and charts build from that.</p><button class="btn g" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data to explore'}</button></div>`;
+ if(!S.acc.length&&!S.hold.length)return `<h1>Quick Budget</h1><div class="card"><b>Start here</b><p style="color:var(--mu);font-size:14px;line-height:1.5">1. Accounts tab: add your chequing, savings and credit cards with today’s balances.<br>2. Invest tab: add your stocks with shares, price and dividend.<br>3. Activity tab: log income, spending and card payments — recurring salary and bills post themselves there.<br>Your net worth and charts build from that.</p><button class="btn g" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data to explore'}</button></div>`;
  const n=nw(),m=ym(new Date()),inc=tot(m,'income'),exp=tot(m,'expense'),sr=inc>0?Math.round((inc-exp)/inc*100):null,ks=Object.keys(S.snap).sort(),bk=ks[Math.max(0,ks.length-31)],dl=ks.length>1?n-S.snap[bk]:null;
  const cats={};S.tx.filter(t=>t.k=='expense'&&t.d.slice(0,7)==m).forEach(t=>cats[t.c]=(cats[t.c]||0)+t.a);const cs=Object.entries(cats).sort((a,b)=>b[1]-a[1]),cm=cs.length?cs[0][1]:1;
  const cards=S.acc.filter(a=>a.t=='credit'&&a.lim>0),dv=sum(S.hold,h=>h.sh*h.div);
- return `<h1>Money</h1><div class="card hero"><small>NET WORTH</small><b>${f0(n)}</b><small>${dl==null?'Tracking starts today':(dl>=0?'▲ ':'▼ ')+f0(Math.abs(dl))+' since '+bk}</small>${line()}</div>`+annCard()+
+ return `<h1>Quick Budget</h1><div class="card hero"><small>NET WORTH</small><b>${f0(n)}</b><small>${dl==null?'Tracking starts today':(dl>=0?'▲ ':'▼ ')+f0(Math.abs(dl))+' since '+bk}</small>${line()}</div>`+annCard()+
  `<div class="g2"><div class="card"><small>Assets</small><div class="k up">${f0(cash()+sav()+inv())}</div></div><div class="card"><small>Debt</small><div class="k dn">${f0(-debt())}</div></div></div>`+lockCard()+
  `<h2>Where your money sits</h2><div class="card">${donut([{n:'Cash',v:cash()},{n:'Savings',v:sav()},{n:'Investments',v:inv()}])}</div>`+
  `<h2>This month</h2><div class="g2"><div class="card"><small>Income</small><div class="k up">${f0(inc)}</div></div><div class="card"><small>Spent</small><div class="k dn">${f0(exp)}</div></div></div><div class="card"><div class="row"><small class="sp">Savings rate</small><b class="${sr!=null&&sr<0?'dn':'up'}">${sr==null?'–':sr+'%'}</b></div></div>`+
