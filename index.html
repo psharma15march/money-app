@@ -44,11 +44,27 @@ nav button{flex:1;border:0;background:none;color:var(--mu);font:inherit;font-siz
 .pills::-webkit-scrollbar{display:none}
 .pills .chip{white-space:nowrap;cursor:default}
 .daybars{display:flex;align-items:flex-end;gap:3px;height:78px;margin-top:6px}
-.daybars i{flex:1;border-radius:3px 3px 0 0;display:block}
+.daybars i{flex:1;margin:0 26%;border-radius:3px 3px 0 0;display:block}
 .daylbl{display:flex;gap:3px;margin-top:3px}
 .daylbl span{flex:1;text-align:center;font-size:10px;color:var(--mu)}
 .dhead{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:12px 0 2px}
 .addbar{cursor:pointer;color:var(--ac);font-weight:700;font-size:14px}
+
+.k{font-size:23px}
+.tile .ic{width:44px;height:44px;font-size:21px}
+.tile b{font-size:15px}
+.balin{font-size:25px}
+.split{height:13px}
+.dhead{font-size:12px}
+.actrows .ic{width:44px;height:44px;font-size:20px}
+.actrows .li b{font-size:16px}
+.actrows .amt{font-size:17px}
+.pills .chip{font-size:14px;padding:9px 14px}
+.chips .chip{font-size:14px;padding:10px 8px}
+.addbar{font-size:16px}
+.bigf small{font-size:13px}
+.bigf input{padding:13px 12px;font-size:17px}
+.dn{width:132px;height:132px}
 </style></head><body>
 <main id="app"></main><nav id="nav"></nav>
 <script>
@@ -78,7 +94,7 @@ const arcs=it.map((i,k)=>{const l=i.v/t*L,s=`<circle cx="60" cy="60" r="${r}" fi
 return `<div class="row"><svg width="130" height="130" viewBox="0 0 120 120">${arcs}</svg><div class="sp">${it.map((i,k)=>`<div class="lg"><i style="background:${PAL[k%8]}"></i><span>${esc(i.n)}</span><b>${Math.round(i.v/t*100)}%</b></div>`).join('')}</div></div>`}
 function mbars(){const D=[];for(let i=5;i>=0;i--){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);const m=ym(d);D.push({m,d,i:tot(m,'income'),e:tot(m,'expense')})}
 const mx=Math.max(1,...D.flatMap(x=>[x.i,x.e]));
-return `<svg viewBox="0 0 320 125" width="100%">${D.map((x,k)=>{const g=k*53+8,hi=x.i/mx*88,he=x.e/mx*88;return `<rect x="${g}" y="${98-hi}" width="18" height="${hi}" rx="4" fill="var(--up)"/><rect x="${g+21}" y="${98-he}" width="18" height="${he}" rx="4" fill="var(--dn)"/><text x="${g+20}" y="116" text-anchor="middle" font-size="10" fill="var(--mu)">${x.d.toLocaleDateString(undefined,{month:'short'})}</text>`}).join('')}</svg><div class="lg"><i style="background:var(--up)"></i><span>Income</span><i style="background:var(--dn)"></i><span>Expenses</span></div>`}
+return `<div style="display:flex;align-items:flex-end;gap:6px;height:104px;padding:0 2px">${D.map(x=>`<div style="flex:1;display:flex;align-items:flex-end;justify-content:center;gap:4px;height:100%"><div style="width:38%;max-width:26px;height:${Math.max(3,x.i/mx*100)}%;background:var(--up);border-radius:6px 6px 3px 3px"></div><div style="width:38%;max-width:26px;height:${Math.max(3,x.e/mx*100)}%;background:var(--dn);border-radius:6px 6px 3px 3px"></div></div>`).join('')}</div><div style="display:flex;gap:6px;padding:0 2px">${D.map(x=>`<div style="flex:1;text-align:center;font-size:11.5px;color:var(--mu);margin-top:5px">${x.d.toLocaleDateString(undefined,{month:'short'})}</div>`).join('')}</div><div class="lg"><i style="background:var(--up)"></i><span>Income</span><i style="background:var(--dn)"></i><span>Expenses</span></div>`}
 function home(){
  if(!S.acc.length&&!S.hold.length)return `<h1>Quick Budget</h1><div class="card"><b>Start here</b><p style="color:var(--mu);font-size:14px;line-height:1.5">1. Accounts tab: add your chequing, savings and credit cards with today’s balances.<br>2. Invest tab: add your stocks with shares, price and dividend.<br>3. Activity tab: log income, spending and card payments — recurring salary and bills post themselves there.<br>Your net worth and charts build from that.</p><button class="btn g" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data to explore'}</button></div>`;
  const n=nw(),m=ym(new Date()),inc=tot(m,'income'),exp=tot(m,'expense'),sr=inc>0?Math.round((inc-exp)/inc*100):null,ks=Object.keys(S.snap).sort(),bk=ks[Math.max(0,ks.length-31)],dl=ks.length>1?n-S.snap[bk]:null;
@@ -89,7 +105,7 @@ function home(){
  `<h2>Where your money sits</h2><div class="card">${donut([{n:'Cash',v:cash()},{n:'Savings',v:sav()},{n:'Investments',v:inv()}])}</div>`+
  `<h2>This month</h2><div class="g3"><div class="card"><small>Income</small><div class="k up">${f0(inc)}</div></div><div class="card"><small>Spent</small><div class="k dn">${f0(exp)}</div></div><div class="card"><small>Saved</small><div class="k ${sr!=null&&sr<0?'dn':'up'}">${sr==null?'–':sr+'%'}</div></div></div>`+
  `<div class="card">${mbars()}</div>`+
- (cs.length?`<h2>Spending by category</h2><div class="card">${cs.map(([c,v],i)=>`<div class="row"><small class="sp">${esc(c)}</small><b style="font-size:13px">${f0(v)}</b></div><div class="bar"><i style="width:${v/cm*100}%;background:${PAL[i%8]}"></i></div>`).join('')}</div>`:'')+
+ (cs.length?`<h2>Spending by category</h2><div class="card">${cs.map(([c,v],i)=>`<div class="row"><span class="sp" style="font-size:14.5px">${esc(c)}</span><b style="font-size:15px">${f0(v)}</b></div><div class="bar"><i style="width:${v/cm*100}%;background:${PAL[i%8]}"></i></div>`).join('')}</div>`:'')+
  (cards.length?`<h2>Credit utilization</h2><div class="card">${cards.map(a=>{const u=a.b/a.lim*100;return `<div class="row"><small class="sp">${esc(a.n)}</small><b style="font-size:13px" class="${u>30?'dn':'up'}">${Math.round(u)}%</b></div><div class="bar"><i style="width:${Math.min(100,u)}%;background:${u>30?'var(--dn)':'var(--up)'}"></i></div>`}).join('')}<small>Under 30% is the usual target.</small></div>`:'')+
  (dv>0?`<h2>Dividends</h2><div class="g2"><div class="card"><small>Per year</small><div class="k">${f0(dv)}</div></div><div class="card"><small>Per month</small><div class="k">${f0(dv/12)}</div></div></div>`:'')+annCard()+budgetCard(m)+insights()}
 function accts(){
@@ -116,7 +132,7 @@ function invest(){
  h+=`<div class="card"><div class="addbar" onclick="ui.addInv=!ui.addInv;render()">＋ Add investment account</div>${openIA?`<div class="f" style="margin-top:8px"><input id="ian" class="w" placeholder="Name (e.g. Wealthsimple TFSA)"><select id="iat"><option value="tfsa">TFSA</option><option value="fhsa">FHSA</option><option value="rrsp">RRSP</option><option value="resp">RESP</option><option value="invest">Non-registered</option></select><input id="iab" type="number" inputmode="decimal" placeholder="Cash balance in the account"><button class="btn w" onclick="addInvA()">Add investment account</button></div>`:''}</div>`;
  h+=lockCard();
  if(S.hold.length)h+=`<div class="card">${donut(S.hold.map(x=>({n:x.tk,v:x.sh*x.px})))}</div><div class="g2"><div class="card"><small>Dividends / year</small><div class="k">${f0(dv)}</div></div><div class="card"><small>Yield on value</small><div class="k">${v>0?(dv/v*100).toFixed(2):0}%</div></div></div><h2>Holdings</h2>`;
- ['tfsa','fhsa','rrsp','resp','nonreg'].forEach(w=>{const L=S.hold.filter(x=>(x.w||'nonreg')==w);if(!L.length)return;h+=`<h2>${WRAP[w]} · ${f0(sum(L,x=>x.sh*x.px))}</h2>`+L.map(x=>{const gl=x.sh*(x.px-x.cost);return `<div class="card"><div class="row"><b class="sp">${esc(x.tk)}</b><b>${f0(x.sh*x.px)}</b><button class="x" onclick="delH(${x.id})">${dq=='h'+x.id?'Sure?':'×'}</button></div><small class="${gl>=0?'up':'dn'}">${gl>=0?'▲':'▼'} ${f0(Math.abs(gl))} · yield ${x.px>0?(x.div/x.px*100).toFixed(2):0}%</small>${x.lastDiv?`<br><small>Latest distribution ${f2(x.lastDiv.amt)}/share · ex-date ${esc(x.lastDiv.date)}${x.cur?' · '+esc(x.cur):''}</small>`:''}<div class="f"><div><small>Shares</small><input type="number" inputmode="decimal" value="${x.sh}" onchange="setH(${x.id},'sh',this.value)"></div><div><small>Price now</small><input type="number" inputmode="decimal" value="${x.px}" onchange="setH(${x.id},'px',this.value)"></div></div><div class="f"><div><small>Account it sits in</small><select onchange="setH(${x.id},'w',this.value)">${Object.entries(WRAP).map(([k,nm])=>`<option value="${k}" ${(x.w||'nonreg')==k?'selected':''}>${nm}</option>`).join('')}</select></div></div></div>`}).join('')});
+ ['tfsa','fhsa','rrsp','resp','nonreg'].forEach(w=>{const L=S.hold.filter(x=>(x.w||'nonreg')==w);if(!L.length)return;h+=`<h2>${WRAP[w]} · ${f0(sum(L,x=>x.sh*x.px))}</h2>`+L.map(x=>{const gl=x.sh*(x.px-x.cost);return `<div class="card"><div class="row"><b class="sp">${esc(x.tk)}</b><b>${f0(x.sh*x.px)}</b><button class="x" onclick="delH(${x.id})">${dq=='h'+x.id?'Sure?':'×'}</button></div><small class="${gl>=0?'up':'dn'}">${gl>=0?'▲':'▼'} ${f0(Math.abs(gl))} · yield ${x.px>0?(x.div/x.px*100).toFixed(2):0}%</small>${x.lastDiv?`<br><small>Latest distribution ${f2(x.lastDiv.amt)}/share · ex-date ${esc(x.lastDiv.date)}${x.cur?' · '+esc(x.cur):''}</small>`:''}<div class="f bigf"><div><small>Shares</small><input type="number" inputmode="decimal" value="${x.sh}" onchange="setH(${x.id},'sh',this.value)"></div><div><small>Price now</small><input type="number" inputmode="decimal" value="${x.px}" onchange="setH(${x.id},'px',this.value)"></div></div><div class="f"><div><small>Account it sits in</small><select onchange="setH(${x.id},'w',this.value)">${Object.entries(WRAP).map(([k,nm])=>`<option value="${k}" ${(x.w||'nonreg')==k?'selected':''}>${nm}</option>`).join('')}</select></div></div></div>`}).join('')});
  h+=`<h2>Add stock</h2><div class="card"><div class="f"><input id="ht" class="w" placeholder="Ticker (e.g. RY)"><input id="hs" type="number" inputmode="decimal" placeholder="Shares"><input id="hc" type="number" inputmode="decimal" placeholder="Avg cost / share"><input id="hp" type="number" inputmode="decimal" placeholder="Price now"><input id="hd" class="w" type="number" inputmode="decimal" placeholder="Dividend per share per year"><select id="hw">${Object.entries(WRAP).map(([k,nm])=>`<option value="${k}">${nm}</option>`).join('')}</select><button class="btn w" onclick="addH()">Add stock</button></div><small>Prices and dividends update automatically when you're online; you can also edit “Price now” anytime.</small></div>`;
  return h}
 const EMAP={Housing:'🏠',Food:'🍔',Transport:'🚗',Bills:'💡',Shopping:'🛍️',Health:'💊',Fun:'🎉',Other:'📦',Salary:'💼',Business:'🧾',Dividends:'📈','Card payment':'💳',Groceries:'🛒',Dining:'🍽️',Utilities:'🔌',Subscriptions:'🔁',Insurance:'🛡️',Personal:'💅'};
