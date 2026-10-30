@@ -40,11 +40,10 @@ const KEY='sam-fin-v1',PAL=['#0f766e','#6366f1','#f59e0b','#ec4899','#0ea5e9','#
 const EXC=['Housing','Groceries','Dining','Transport','Bills','Utilities','Subscriptions','Shopping','Health','Insurance','Personal','Fun','Other'],INC=['Salary','Business','Dividends','Rent','Other'];
 const NEEDS=['Housing','Groceries','Transport','Bills','Utilities','Insurance','Health'],WANTS=['Dining','Subscriptions','Shopping','Personal','Fun'];
 const RULES=[[/tim hortons|starbucks|mcdonald|burger|pizza|sushi|restaurant|cafe|coffee|a&w|subway|skip ?the ?dishes|doordash|uber ?eats|fantuan/i,'Dining'],[/save-on|superstore|loblaws|sobeys|safeway|freshco|no frills|t&t|grocery|groceries|costco|walmart|market/i,'Groceries'],[/netflix|spotify|apple|icloud|google one|youtube premium|prime|disney|hulu|subscription|membership|gym|goodlife/i,'Subscriptions'],[/bc hydro|fortis|hydro|electric|water bill|telus|rogers|bell|fido|koodo|internet|phone bill|shaw/i,'Utilities'],[/shell|petro|esso|chevron|gas station|translink|compass|uber(?! eats)|lyft|taxi|parking|icbc/i,'Transport'],[/insurance|icbc insurance/i,'Insurance'],[/pharmacy|shoppers drug|dental|dentist|clinic|doctor|physiotherapy/i,'Health'],[/amazon|ikea|best buy|canadian tire|dollarama|winners|mall|store/i,'Shopping'],[/rent|mortgage|landlord|strata/i,'Housing']];
-if(!S.learn)S.learn={};
 let S,view='home',dq=null,ex='expense',q='',mf='';
 try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.acc)S={n:1,cur:'CAD',acc:[],hold:[],tx:[],snap:{}};
-if(!S.bud)S.bud={}; if(!S.rec)S.rec=[]; if(!S.goals)S.goals=[]; if(!S.lastBackup)S.lastBackup=null; if(!S.theme)S.theme=''; if(!S.mkt)S.mkt={last:null,news:[]};
+if(!S.bud)S.bud={}; if(!S.rec)S.rec=[]; if(!S.goals)S.goals=[]; if(!S.lastBackup)S.lastBackup=null; if(!S.theme)S.theme=''; if(!S.mkt)S.mkt={last:null,news:[]}; if(!S.learn)S.learn={};
 if(S.theme)document.documentElement.dataset.theme=S.theme;
 const num=v=>parseFloat(v)||0,sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
 const tdy=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
@@ -105,7 +104,7 @@ function accts(){
 function budget(){
  const m=ym(new Date()),br=budgetRows(m);const ins=insights();
  let h=`<h1>Budget</h1>`+ins+`<div class="card"><small>Set a monthly limit per category. Bars turn amber at 80% and red over 100%. Based on this month: ${m}</small></div><div class="card">`;
- h+=br.map(x=>{const c=x.c;const row=x;return `<div style="margin-bottom:14px"><div class="row"><b class="sp">${esc(c)}</b><small>${f0(row.spent)} spent</small></div><div class="bar"><i style="width:${Math.min(100,row.pct)}%;background:${row.pct>=100?'var(--dn)':row.pct>=80?'var(--warn)':'var(--ac)'}"></i></div><div class="row"><input type="number" inputmode="decimal" placeholder="Monthly limit" value="${S.bud[c]||''}" onchange="S.bud['${c}']=num(this.value);save();render()"><span style="font-size:13px">${row.lim?Math.round(row.pct)+'% used · '+f0(row.lim-row.spent)+' left':''}</span></div></div>`}).join('');
+ h+=[...new Set(EXC.concat(S.tx.filter(t=>t.k=='expense').map(t=>t.c)))].map(c=>{const row=br.find(x=>x.c==c)||{spent:0,lim:num(S.bud[c]),pct:0};return `<div style="margin-bottom:14px"><div class="row"><b class="sp">${esc(c)}</b><small>${f0(row.spent)} spent</small></div><div class="bar"><i style="width:${Math.min(100,row.pct)}%;background:${row.pct>=100?'var(--dn)':row.pct>=80?'var(--warn)':'var(--ac)'}"></i></div><div class="row"><input type="number" inputmode="decimal" placeholder="Monthly limit" value="${S.bud[c]||''}" onchange="S.bud['${c}']=num(this.value);save();render()"><span style="font-size:13px">${row.lim?Math.round(row.pct)+'% used · '+f0(row.lim-row.spent)+' left':''}</span></div></div>`}).join('');
  return h+`</div><div class="card"><small>Quick rule if you're unsure: 50% needs (housing, bills, food, transport), 30% wants, 20% savings/debt payoff — adjust to Vancouver rent, don't force it.</small></div>`}
 function invest(){
  const v=sum(S.hold,h=>h.sh*h.px),c=sum(S.hold,h=>h.sh*h.cost),dv=sum(S.hold,h=>h.sh*h.div),g=v-c,totalInv=inv();
