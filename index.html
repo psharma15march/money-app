@@ -131,7 +131,7 @@ function chgCard(){
  const inW=k=>sum(S.tx.filter(t=>t.k==k&&t.d>=winStart),t=>t.a),inP=k=>sum(S.tx.filter(t=>t.k==k&&t.d>=prevStart&&t.d<=prevEnd),t=>t.a);
  const inc=inW('income'),exp2=inW('expense'),incP=inP('income'),expP=inP('expense');
  const pc=(a,b)=>b>0?Math.round((a-b)/b*100):null;
- const sgn=v=>'<b class="'+(v>=0?'up':'dn')+'" style="font-size:16px">'+(v>0?'+':'')+f0(v)+'</b>';
+ const sgn=v=>{const r=Math.round(v);return '<b class="'+(r>0?'up':r<0?'dn':'')+'" style="font-size:16px">'+(r>0?'+':'')+f0(r)+'</b>'};
  const vsP=(a,b)=>{const p=pc(a,b);return p==null?'':(p>=0?'▲ ':'▼ ')+Math.abs(p)+'% vs previous '+LB};
  const row=(l,val,sub)=>'<div class="row" style="padding:5px 0"><small class="sp" style="font-size:14.5px">'+l+'</small>'+val+'</div>'+(sub?'<div style="font-size:12.5px;color:var(--mu);margin:-2px 0 3px">'+sub+'</div>':'');
  let h='<h2>Changes</h2><div class="card"><div class="chips">'+[[1,'Day'],[7,'Week'],[30,'Month'],[365,'Year']].map(([p,l])=>'<button class="chip '+(P==p?'on':'')+'" onclick="ui.chg='+p+';render()">'+l+'</button>').join('')+'</div>';
@@ -213,7 +213,7 @@ bak:`<div class="card row"><button class="btn g sp" onclick="exp()">Export backu
 inst:`<div class="card"><small>Open this page in Chrome, tap ⋮ → “Install app”. After the first open it works fully offline — all data stays on your phone, nothing is uploaded. Net worth = cash + savings + investments − card balances. Export a backup regularly: clearing Chrome site data erases the app's data.</small></div>`,
 test:`<div class="card"><small>Want to see the charts, budgets and insights filled in first?</small><br><button class="btn g" style="margin-top:8px" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data'}</button><br><small>Clearly labelled TEST numbers, not yours. Erase all data below wipes them.</small></div>`,
 del:`<div class="card"><button class="btn g dn" onclick="rs()">${dq=='r'?'Tap again to erase everything':'Erase all data'}</button></div>`};
-return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec14</small></div>`}
+return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec15</small></div>`}
 const BGS={midnight:{bg:'#000000',card:'#101214',bd:'#232629'},ocean:{bg:'#071826',card:'#0c2436',bd:'#1d3f57'},forest:{bg:'#0a1a12',card:'#10241a',bd:'#1f4030'},plum:{bg:'#1a0f22',card:'#251533',bd:'#3f2756'},coffee:{bg:'#171008',card:'#241a10',bd:'#40301d'},sand:{bg:'#f5efe3',card:'#fffaf0',bd:'#e2d7c3'}};
 const TXS={white:'#ffffff',ivory:'#f7f0dd',sky:'#bfe0ff',mint:'#c2f2dd',rose:'#ffd3e2',amber:'#ffe3a3'};
 function applyLook(){const st=document.documentElement.style;if(!st||!st.setProperty)return;const b=BGS[S.bg];if(b){st.setProperty('--bg',b.bg);st.setProperty('--card',b.card);st.setProperty('--bd',b.bd)}else{st.removeProperty('--bg');st.removeProperty('--card');st.removeProperty('--bd')}const t=TXS[S.txc];if(t)st.setProperty('--tx',t);else st.removeProperty('--tx')}
@@ -261,15 +261,15 @@ function insights(){
  return h+'</div>'}
 async function fetchQuote(sym){
  const url='https://query1.finance.yahoo.com/v8/finance/chart/'+encodeURIComponent(sym)+'?range=1y&interval=1d&events=div';
- const tries=[url,'https://api.allorigins.win/raw?url='+encodeURIComponent(url)];
- for(const u of tries){try{const r=await fetch(u);if(!r.ok)continue;const j=await r.json();const res=j&&j.chart&&j.chart.result&&j.chart.result[0];if(res&&res.meta&&res.meta.regularMarketPrice!=null)return res}catch(e){}}
+ const tries=[url,'https://api.allorigins.win/raw?url='+encodeURIComponent(url),'https://r.jina.ai/'+url];
+ for(const u of tries){try{const r=await fetch(u);if(!r.ok)continue;const tx=await r.text();const ix=tx.indexOf('{');if(ix<0)continue;const j=JSON.parse(tx.slice(ix));const res=j&&j.chart&&j.chart.result&&j.chart.result[0];if(res&&res.meta&&res.meta.regularMarketPrice!=null)return res}catch(e){}}
  return null}
 async function refreshMarket(manual){
  const st=document.getElementById('mktstatus'); if(st)st.textContent='Updating…';
  let ok=0,fail=[];
  for(const h of S.hold){
    let res=await fetchQuote(h.tk);
-   if(!res&&!h.tk.includes('.'))res=await fetchQuote(h.tk+'.TO');
+   if(!res&&!h.tk.includes('.')){res=await fetchQuote(h.tk+'.TO');if(!res)res=await fetchQuote(h.tk+'.NE')}
    if(!res){fail.push(h.tk);continue}
    const meta=res.meta;h.px=meta.regularMarketPrice;h.cur=meta.currency||'';
    const ev=res.events&&res.events.dividends?Object.values(res.events.dividends):[];
