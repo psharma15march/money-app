@@ -90,6 +90,8 @@ h2{margin:20px 2px 9px}
 body{overflow-x:hidden}
 .actrows .sp{min-width:0}
 .actrows .li b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chgchips{display:flex;gap:6px}.chgchips .chip{flex:1;text-align:center;padding:8px 0}.chhero{padding:10px 2px 4px;border-bottom:1px solid var(--bd);margin-bottom:10px}.chhero>small{font-size:11px;letter-spacing:.6px;color:var(--mu)}.chbig{font-size:28px;font-weight:800;margin:3px 0;white-space:nowrap}.chpct{font-size:14px;font-weight:700}.chgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cht{background:rgba(127,127,127,.10);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;min-width:0}.cht>small{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--mu)}.chv{font-size:19px;font-weight:700;margin:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chs{font-size:12px;color:var(--mu);line-height:1.35}.chfoot{margin-top:10px;font-size:13.5px;color:var(--mu);border-top:1px solid var(--bd);padding-top:9px}
+.chline{stroke-dasharray:100;stroke-dashoffset:100;animation:chdraw .9s ease-out forwards}@keyframes chdraw{to{stroke-dashoffset:0}}.cht{cursor:pointer}.cht.on{border-color:var(--ac)}.chdet{border-top:1px solid var(--bd);margin-top:10px;padding-top:8px}.chdet small{color:var(--mu)}
 </style></head><body>
 <main id="app"></main><nav id="nav"></nav>
 <script>
@@ -131,23 +133,36 @@ function chgCard(){
  const inW=k=>sum(S.tx.filter(t=>t.k==k&&t.d>=winStart),t=>t.a),inP=k=>sum(S.tx.filter(t=>t.k==k&&t.d>=prevStart&&t.d<=prevEnd),t=>t.a);
  const inc=inW('income'),exp2=inW('expense'),incP=inP('income'),expP=inP('expense'),cf=inc-exp2;
  const pc=(a,b)=>b>0?(a-b)/b*100:null;
- const sps=Object.keys(S.snap).filter(k=>k>=snapStart).sort();let spark='';
- if(sps.length>1){const vv=sps.map(k=>S.snap[k]),mn=Math.min(...vv),mx=Math.max(...vv),rg=(mx-mn)||1;spark='<svg width="100%" height="30" viewBox="0 0 100 30" preserveAspectRatio="none" style="display:block;margin-top:6px"><polyline fill="none" stroke="'+(dNW>=0?'var(--up)':'var(--dn)')+'" stroke-width="1.6" points="'+vv.map((v,i)=>(i/(vv.length-1)*100).toFixed(1)+','+(27-(v-mn)/rg*24).toFixed(1)).join(' ')+'"/></svg>'}
  const fmtP=p=>(p>=0?'▲ ':'▼ ')+Math.abs(p).toFixed(Math.abs(p)>=100?0:1)+'%';
- const vs=(a,b,goodUp)=>{const p=pc(a,b);if(p==null)return 'no previous '+LB+' to compare';const good=goodUp?p>=0:p<=0;return '<span class="'+(good?'up':'dn')+'">'+fmtP(p)+' vs prev '+LB+'</span>'};
  const big=v=>{const r=Math.round(v);return '<span class="'+(r>0?'up':r<0?'dn':'')+'">'+(r>0?'+':'')+f0(r)+'</span>'};
- const tile=(l,val,sub)=>'<div class="cht"><small>'+l+'</small><div class="chv">'+val+'</div>'+(sub?'<div class="chs">'+sub+'</div>':'')+'</div>';
+ const sps=Object.keys(S.snap).filter(k=>k>=snapStart).sort();let graph='';
+ if(sps.length>1){const vv=sps.map(k=>S.snap[k]);if(Math.round(vv[vv.length-1]*100)!=Math.round(nw()*100)){vv.push(nw());sps.push(tdy())}
+  const mn=Math.min(...vv),mx=Math.max(...vv),rg=(mx-mn)||1;
+  const pts=vv.map((v,i)=>(i/(vv.length-1)*100).toFixed(1)+','+(31-(v-mn)/rg*26).toFixed(1)).join(' ');
+  const lp=pts.split(' ').pop().split(','),col=dNW>=0?'var(--up)':'var(--dn)';
+  graph='<svg width="100%" height="40" viewBox="0 0 100 36" preserveAspectRatio="none" style="display:block;margin-top:4px"><polyline class="chline" pathLength="100" fill="none" stroke="'+col+'" stroke-width="1.8" stroke-linejoin="round" points="'+pts+'"/><circle cx="'+lp[0]+'" cy="'+lp[1]+'" r="2.2" fill="'+col+'"/></svg><div class="row" style="font-size:11px;color:var(--mu)"><span>'+sps[0]+'</span><span>'+sps[sps.length-1]+'</span></div>'}
+ const D=ui.chgD;let det='';
+ const drow=(l,v)=>'<div class="row" style="padding:3px 0;font-size:13.5px"><span class="sp" style="color:var(--mu)">'+l+'</span><b>'+v+'</b></div>';
+ const vsTxt=(a,b,goodUp)=>{const p=pc(a,b);if(p==null)return 'nothing to compare yet';const good=goodUp?p>=0:p<=0;return '<span class="'+(good?'up':'dn')+'">'+fmtP(p)+'</span> vs previous '+LB+' ('+f0(b)+')'};
+ if(D=='nw'){det=drow('From',f0(n0.v||0)+(n0.k?' · '+n0.k:''))+drow('To',f0(nw())+' · today')+drow('Cash flow','<span class="'+(cf>=0?'up':'dn')+'">'+(cf>0?'+':'')+f0(cf)+'</span>')+(inc>0?drow('Saved',Math.round(cf/inc*100)+'% of income'):'')}
+ else if(D=='inc'){const L=S.tx.filter(t=>t.k=='income'&&t.d>=winStart).sort((a,b)=>b.a-a.a);det=drow('Compared to before',vsTxt(inc,incP,true))+L.slice(0,4).map(t=>drow(esc(t.d)+' · '+esc(t.c||'Income'),f0(t.a))).join('')+(L.length>4?drow('+ '+(L.length-4)+' more',''):'')+(L.length?'':'<small>No income in this period.</small>')}
+ else if(D=='exp'){const cc={};S.tx.filter(t=>t.k=='expense'&&t.d>=winStart).forEach(t=>cc[t.c]=(cc[t.c]||0)+t.a);const L=Object.entries(cc).sort((a,b)=>b[1]-a[1]);det=drow('Compared to before',vsTxt(exp2,expP,false))+L.slice(0,4).map(([c,v])=>drow(esc(c),f0(v))).join('')+(L.length?'':'<small>No expenses in this period.</small>')}
+ else if(D=='inv'){det=hasI?drow('Portfolio was',f0(i0.v)+' · '+i0.k)+drow('Portfolio now',f0(inv()))+drow('Deposits in period',f0(dep))+drow('Growth (profit)',prof==null?'—':big(prof)):'<small>Investment history starts today — this fills in from tomorrow.</small>'}
+ else if(D=='dep'){const L=(S.flow||[]).filter(f=>f.d>=winStart).slice().sort((a,b)=>b.d.localeCompare(a.d));det=L.slice(0,5).map(f=>drow(esc(f.d)+' · '+(f.a>=0?'Buy / deposit':'Sell / withdrawal'),(f.a>0?'+':'')+f0(f.a))).join('')+(L.length>5?drow('+ '+(L.length-5)+' more',''):'')+(L.length?'':'<small>No buys or sells in this period.</small>')}
+ else if(D=='prof'){det=hasI?drow('Value change',big(dIv))+drow('Minus deposits','− '+f0(dep))+drow('= Profit',prof==null?'—':big(prof))+'<small>Profit is growth that did not come from your deposits.</small>':'<small>Needs a day of investment history first.</small>'}
+ else if(D=='div'){const L=(S.drec||[]).filter(x=>x.d>=winStart).slice().sort((a,b)=>b.d.localeCompare(a.d));det=L.slice(0,5).map(x=>drow(esc(x.d)+' · '+esc(x.tk),f0(x.a))).join('')+(L.length>5?drow('+ '+(L.length-5)+' more',''):'')+(L.length?'':'<small>No dividends recorded in this period yet.</small>')}
+ const cell=(k,l,val)=>'<div class="cht'+(D==k?' on':'')+'" onclick="ui.chgD=ui.chgD==\''+k+'\'?null:\''+k+'\';render()"><small>'+l+'</small><div class="chv">'+val+'</div></div>';
  let h='<h2>Changes</h2><div class="card"><div class="chips chgchips">'+[[1,'Day'],[7,'Week'],[30,'Month'],[365,'Year']].map(([p,l])=>'<button class="chip '+(P==p?'on':'')+'" onclick="ui.chg='+p+';render()">'+l+'</button>').join('')+'</div>';
- h+='<div class="chhero"><small>NET WORTH CHANGE · '+LB.toUpperCase()+'</small><div class="chbig">'+big(dNW)+(nwPct==null?'':' <span class="chpct '+(dNW>=0?'up':'dn')+'">'+fmtP(nwPct)+'</span>')+'</div><small>'+(n0.k&&n0.k>snapStart?'only tracked since '+n0.k:'from '+f0(n0.v||0)+' · '+snapStart)+'</small>'+spark+'</div>';
+ h+='<div class="chhero" onclick="ui.chgD=ui.chgD==\'nw\'?null:\'nw\';render()" style="cursor:pointer"><small>NET WORTH CHANGE · '+LB.toUpperCase()+'</small><div class="chbig">'+big(dNW)+(nwPct==null?'':' <span class="chpct '+(dNW>=0?'up':'dn')+'">'+fmtP(nwPct)+'</span>')+'</div><small>'+(n0.k&&n0.k>snapStart?'only tracked since '+n0.k:'from '+f0(n0.v||0)+' · '+snapStart)+'</small>'+graph+'</div>';
  h+='<div class="g2 chgrid">'
-  +tile('Income','<span class="up">'+f0(inc)+'</span>',vs(inc,incP,true))
-  +tile('Expenses','<span class="dn">'+f0(exp2)+'</span>',vs(exp2,expP,false))
-  +tile('Investments',dIv==null?'—':big(dIv),dIv==null?'starts today — needs a day of history':'portfolio value change')
-  +tile('Deposited',f0(dep),'buys minus sells')
-  +tile('Profit',prof==null?'—':big(prof),'growth after deposits')
-  +tile('Dividends received','<span class="up">'+f0(dvR)+'</span>',dvR?'paid out in the period':'none recorded yet')
+  +cell('inc','Income','<span class="up">'+f0(inc)+'</span>')
+  +cell('exp','Expenses','<span class="dn">'+f0(exp2)+'</span>')
+  +cell('inv','Investments',dIv==null?'—':big(dIv))
+  +cell('dep','Deposited',f0(dep))
+  +cell('prof','Profit',prof==null?'—':big(prof))
+  +cell('div','Dividends received','<span class="up">'+f0(dvR)+'</span>')
   +'</div>';
- h+='<div class="chfoot">Cash flow <b class="'+(cf>=0?'up':'dn')+'">'+(cf>0?'+':'')+f0(cf)+'</b>'+(inc>0?' · saved '+Math.round(cf/inc*100)+'% of income':'')+'</div>';
+ h+=det?'<div class="chdet">'+det+'</div>':'<div class="chfoot" style="border-top:none;margin-top:8px;padding-top:0">Tap any number above for details</div>';
  return h+'</div>'}
 function home(){
  if(!S.acc.length&&!S.hold.length)return `<h1>${esc(S.appName||'Quick Budget')}</h1><div class="card"><b>Start here</b><p style="color:var(--mu);font-size:14px;line-height:1.5">1. Accounts tab: add your chequing, savings and credit cards with today’s balances.<br>2. Invest tab: add your stocks with shares, price and dividend.<br>3. Activity tab: log income, spending and card payments — recurring salary and bills post themselves there.<br>Your net worth and charts build from that.</p><button class="btn g" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data to explore'}</button></div>`;
@@ -219,7 +234,7 @@ bak:`<div class="card row"><button class="btn g sp" onclick="exp()">Export backu
 inst:`<div class="card"><small>Open this page in Chrome, tap ⋮ → “Install app”. After the first open it works fully offline — all data stays on your phone, nothing is uploaded. Net worth = cash + savings + investments − card balances. Export a backup regularly: clearing Chrome site data erases the app's data.</small></div>`,
 test:`<div class="card"><small>Want to see the charts, budgets and insights filled in first?</small><br><button class="btn g" style="margin-top:8px" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data'}</button><br><small>Clearly labelled TEST numbers, not yours. Erase all data below wipes them.</small></div>`,
 del:`<div class="card"><button class="btn g dn" onclick="rs()">${dq=='r'?'Tap again to erase everything':'Erase all data'}</button></div>`};
-return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec18</small></div>`}
+return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec20</small></div>`}
 const BGS={midnight:{bg:'#000000',card:'#101214',bd:'#232629'},ocean:{bg:'#071826',card:'#0c2436',bd:'#1d3f57'},forest:{bg:'#0a1a12',card:'#10241a',bd:'#1f4030'},plum:{bg:'#1a0f22',card:'#251533',bd:'#3f2756'},coffee:{bg:'#171008',card:'#241a10',bd:'#40301d'},sand:{bg:'#f5efe3',card:'#fffaf0',bd:'#e2d7c3'}};
 const TXS={white:'#ffffff',ivory:'#f7f0dd',sky:'#bfe0ff',mint:'#c2f2dd',rose:'#ffd3e2',amber:'#ffe3a3'};
 function applyLook(){const st=document.documentElement.style;if(!st||!st.setProperty)return;const b=BGS[S.bg];if(b){st.setProperty('--bg',b.bg);st.setProperty('--card',b.card);st.setProperty('--bd',b.bd)}else{st.removeProperty('--bg');st.removeProperty('--card');st.removeProperty('--bd')}const t=TXS[S.txc];if(t)st.setProperty('--tx',t);else st.removeProperty('--tx')}
@@ -391,6 +406,7 @@ if(KEY=='sam-fin-demo-v1'&&!S.acc.length){
  S.mkt={last:'sample data',ts:Date.now(),news:[{id:S.n++,tk:'ENB',msg:'Dividend announced: $0.83/share, ex-date soon',when:tdy()}]};
 }
 
+if(KEY=='sam-fin-demo-v1'&&S.acc.length&&Object.keys(S.snapI||{}).length<60)fakeHist();
 applyLook();save();render();
 if(navigator.onLine&&(!S.mkt.ts||Date.now()-S.mkt.ts>18e5)&&S.hold.length)setTimeout(()=>refreshMarket(false),1500);
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
