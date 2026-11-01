@@ -240,7 +240,7 @@ bak:`<div class="card row"><button class="btn g sp" onclick="exp()">Export backu
 inst:`<div class="card"><small>Open this page in Chrome, tap ⋮ → “Install app”. After the first open it works fully offline — all data stays on your phone, nothing is uploaded. Net worth = cash + savings + investments − card balances. Export a backup regularly: clearing Chrome site data erases the app's data.</small></div>`,
 test:`<div class="card"><small>Want to see the charts, budgets and insights filled in first?</small><br><button class="btn g" style="margin-top:8px" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data'}</button><br><small>Clearly labelled TEST numbers, not yours. Erase all data below wipes them.</small></div>`,
 del:`<div class="card"><button class="btn g dn" onclick="rs()">${dq=='r'?'Tap again to erase everything':'Erase all data'}</button></div>`};
-return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec26</small></div>`}
+return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec27</small></div>`}
 const BGS={midnight:{bg:'#000000',card:'#101214',bd:'#232629'},ocean:{bg:'#071826',card:'#0c2436',bd:'#1d3f57'},forest:{bg:'#0a1a12',card:'#10241a',bd:'#1f4030'},plum:{bg:'#1a0f22',card:'#251533',bd:'#3f2756'},coffee:{bg:'#171008',card:'#241a10',bd:'#40301d'},sand:{bg:'#f5efe3',card:'#fffaf0',bd:'#e2d7c3'}};
 const TXS={white:'#ffffff',ivory:'#f7f0dd',sky:'#bfe0ff',mint:'#c2f2dd',rose:'#ffd3e2',amber:'#ffe3a3'};
 function applyLook(){const st=document.documentElement.style;if(!st||!st.setProperty)return;const b=BGS[S.bg];if(b){st.setProperty('--bg',b.bg);st.setProperty('--card',b.card);st.setProperty('--bd',b.bd)}else{st.removeProperty('--bg');st.removeProperty('--card');st.removeProperty('--bd')}const t=TXS[S.txc];if(t)st.setProperty('--tx',t);else st.removeProperty('--tx')}
@@ -292,6 +292,8 @@ async function fetchQuote(sym){
  const tries=[url,'https://api.allorigins.win/raw?url='+encodeURIComponent(url),'https://r.jina.ai/'+url];
  for(const u of tries){try{const r=await fetch(u);if(!r.ok)continue;const tx=await r.text();const ix=tx.indexOf('{');if(ix<0)continue;const j=JSON.parse(tx.slice(ix));const res=j&&j.chart&&j.chart.result&&j.chart.result[0];if(res&&res.meta&&res.meta.regularMarketPrice!=null)return res}catch(e){}}
  return null}
+let toastT=null;
+function toast(msg){let t=document.getElementById('toast');if(!t||!t.style){t=document.createElement('div');t.id='toast';document.body.appendChild(t)}t.style.cssText='position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(16px);background:#20302f;color:#eaf4f1;border:1px solid rgba(255,255,255,.18);padding:11px 18px;border-radius:999px;font-size:14.5px;font-weight:600;z-index:99;opacity:0;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,.45);max-width:88vw;text-align:center;pointer-events:none';t.textContent=msg;setTimeout(()=>{t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)'},10);clearTimeout(toastT);toastT=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(16px)'},2600)}
 async function refreshMarket(manual){
  const st=document.getElementById('mktstatus'); if(st)st.textContent='Updating…';
  let ok=0,fail=[];const cache={},newsed=new Set();
@@ -308,7 +310,7 @@ async function refreshMarket(manual){
      h.lastDiv=ld; if(ttm>0)h.div=Math.round(ttm*10000)/10000;}
    ok++}
  S.mkt.ts=Date.now();S.mkt.last=new Date().toLocaleString();S.mkt.news=S.mkt.news.slice(0,20);save();render();
- if(manual)alert(ok?('Updated '+ok+' holding(s) ✓'+(fail.length?' Could not fetch: '+fail.join(', '):'')):'Could not reach the free market feed. Check connection — your saved prices are unchanged.')}
+ if(manual)toast(ok?('Quick Budget · Updated '+ok+' holding'+(ok==1?'':'s')+' ✓'+(fail.length?' · could not fetch: '+fail.join(', '):'')):'Quick Budget · Could not reach the market feed — saved prices unchanged')}
 function dismissNews(id){S.mkt.news=S.mkt.news.filter(x=>x.id!=id);save();render()}
 function parseShotText(text){
  const rows=[];const KNOWN=['MSTE','BIGY','HHIC','YTSL','NVDA','NOK','RY','TD','BNS','BMO','CM','ENB','CNR','SHOP','XEQT','VEQT','VFV','HXQ','ZSP'];
