@@ -65,7 +65,7 @@ nav button{flex:1;border:0;background:none;color:var(--mu);font:inherit;font-siz
 .addbar{font-size:16px}
 .bigf small{font-size:13px}
 .bigf input{padding:13px 12px;font-size:17px}
-.dn{width:132px;height:132px}
+
 
 main{padding:16px 14px 94px}
 h2{margin:20px 2px 9px}
@@ -100,7 +100,7 @@ const RULES=[[/tim hortons|starbucks|mcdonald|burger|pizza|sushi|restaurant|cafe
 let S,view='home',dq=null,ex='expense',q='',mf='',flt='all',ui={};
 try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!S.acc)S={n:1,cur:'CAD',acc:[],hold:[],tx:[],snap:{}};
-if(!S.bud)S.bud={};if(!S.rec)S.rec=[];if(!S.goals)S.goals=[];if(!S.mkt)S.mkt={last:null,news:[]};if(!S.learn)S.learn={};S.hold.forEach(x=>{if(!x.w)x.w='nonreg'});if(S.lastBackup===undefined)S.lastBackup=null;if(S.theme===undefined)S.theme='';if(S.theme)document.documentElement.dataset.theme=S.theme;
+if(!S.bud)S.bud={};if(!S.rec)S.rec=[];if(!S.goals)S.goals=[];if(!S.mkt)S.mkt={last:null,news:[]};if(!S.learn)S.learn={};S.hold.forEach(x=>{if(!x.w)x.w='nonreg'});if(S.lastBackup===undefined)S.lastBackup=null;if(S.theme===undefined)S.theme='';if(S.bg===undefined)S.bg='';if(S.txc===undefined)S.txc='';if(S.appName===undefined)S.appName='';if(S.theme)document.documentElement.dataset.theme=S.theme;
 const num=v=>parseFloat(v)||0,sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
 const tdy=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
 const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
@@ -121,11 +121,11 @@ function mbars(){const D=[];for(let i=5;i>=0;i--){const d=new Date();d.setDate(1
 const mx=Math.max(1,...D.flatMap(x=>[x.i,x.e]));
 return `<div style="display:flex;align-items:flex-end;gap:6px;height:118px;padding:0 2px">${D.map(x=>`<div style="flex:1;display:flex;align-items:flex-end;justify-content:center;gap:4px;height:100%"><div style="width:38%;max-width:30px;height:${Math.max(3,x.i/mx*100)}%;background:var(--up);border-radius:6px 6px 3px 3px"></div><div style="width:38%;max-width:30px;height:${Math.max(3,x.e/mx*100)}%;background:var(--dn);border-radius:6px 6px 3px 3px"></div></div>`).join('')}</div><div style="display:flex;gap:6px;padding:0 2px">${D.map(x=>`<div style="flex:1;text-align:center;font-size:11.5px;color:var(--mu);margin-top:5px">${x.d.toLocaleDateString(undefined,{month:'short'})}</div>`).join('')}</div><div class="lg"><i style="background:var(--up)"></i><span>Income</span><i style="background:var(--dn)"></i><span>Expenses</span></div>`}
 function home(){
- if(!S.acc.length&&!S.hold.length)return `<h1>Quick Budget</h1><div class="card"><b>Start here</b><p style="color:var(--mu);font-size:14px;line-height:1.5">1. Accounts tab: add your chequing, savings and credit cards with today’s balances.<br>2. Invest tab: add your stocks with shares, price and dividend.<br>3. Activity tab: log income, spending and card payments — recurring salary and bills post themselves there.<br>Your net worth and charts build from that.</p><button class="btn g" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data to explore'}</button></div>`;
+ if(!S.acc.length&&!S.hold.length)return `<h1>${esc(S.appName||'Quick Budget')}</h1><div class="card"><b>Start here</b><p style="color:var(--mu);font-size:14px;line-height:1.5">1. Accounts tab: add your chequing, savings and credit cards with today’s balances.<br>2. Invest tab: add your stocks with shares, price and dividend.<br>3. Activity tab: log income, spending and card payments — recurring salary and bills post themselves there.<br>Your net worth and charts build from that.</p><button class="btn g" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data to explore'}</button></div>`;
  const n=nw(),m=ym(new Date()),inc=tot(m,'income'),exp=tot(m,'expense'),sr=inc>0?Math.round((inc-exp)/inc*100):null,ks=Object.keys(S.snap).sort(),bk=ks[Math.max(0,ks.length-31)],dl=ks.length>1?n-S.snap[bk]:null;
  const cats={};S.tx.filter(t=>t.k=='expense'&&t.d.slice(0,7)==m).forEach(t=>cats[t.c]=(cats[t.c]||0)+t.a);const cs=Object.entries(cats).sort((a,b)=>b[1]-a[1]),cm=cs.length?cs[0][1]:1;
  const cards=S.acc.filter(a=>a.t=='credit'&&a.lim>0),dv=sum(S.hold,h=>h.sh*h.div);
- return `<h1>Quick Budget</h1><div class="card hero"><small>NET WORTH</small><b>${f0(n)}</b><small>${dl==null?'Tracking starts today':(dl>=0?'▲ ':'▼ ')+f0(Math.abs(dl))+' since '+bk}</small>${line()}</div>`+
+ return `<h1>${esc(S.appName||'Quick Budget')}</h1><div class="card hero"><small>NET WORTH</small><b>${f0(n)}</b><small>${dl==null?'Tracking starts today':(dl>=0?'▲ ':'▼ ')+f0(Math.abs(dl))+' since '+bk}</small>${line()}</div>`+
  `<div class="g2"><div class="card"><small>Assets</small><div class="k up">${f0(cash()+sav()+inv())}</div></div><div class="card"><small>Debt</small><div class="k dn">${f0(debt())}</div></div></div>`+
  `<h2>Where your money sits</h2><div class="card">${donut([{n:'Cash',v:cash()},{n:'Savings',v:sav()},{n:'Investments',v:inv()}])}</div>`+
  `<h2>This month</h2><div class="g3"><div class="card"><small>Income</small><div class="k up">${f0(inc)}</div></div><div class="card"><small>Spent</small><div class="k dn">${f0(exp)}</div></div><div class="card"><small>Saved</small><div class="k ${sr!=null&&sr<0?'dn':'up'}">${sr==null?'–':sr+'%'}</div></div></div>`+
@@ -182,7 +182,7 @@ function recSec(){return `<div class="card">`+(S.rec.length?S.rec.map(r=>`<div c
 function togMo(k){ui.mo=ui.mo==k?'':k;render()}
 function more(){const M=[['cur','💱','Currency','App-wide currency'],['app','🎨','Appearance','System, light or dark'],['goals','🎯','Goals','Savings targets'],['shot','📸','Import from screenshot','Scan holdings, balances, expenses'],['rec','🔁','Repeating entries','Salary, rent, subscriptions — posts itself'],['bak','💾','Backup','Export or import your data'],['inst','📲','Install & offline','How the app works'],['test','🧪','Test data','See every screen filled in'],['del','🗑️','Erase all data','Start over']];
 const P={cur:`<div class="card"><small>Currency</small><select onchange="S.cur=this.value;save();render()">${['CAD','USD','EUR','GBP','INR','AUD'].map(c=>`<option ${c==S.cur?'selected':''}>${c}</option>`).join('')}</select></div>`,
-app:`<div class="card"><small>Appearance</small><select onchange="S.theme=this.value;document.documentElement.dataset.theme=this.value;save()"><option value="" ${!S.theme?'selected':''}>System</option><option value="light" ${S.theme=='light'?'selected':''}>Light</option><option value="dark" ${S.theme=='dark'?'selected':''}>Dark</option></select></div>`,
+app:`<div class="card"><small>Appearance</small><select onchange="S.theme=this.value;document.documentElement.dataset.theme=this.value;save()"><option value="" ${!S.theme?'selected':''}>System</option><option value="light" ${S.theme=='light'?'selected':''}>Light</option><option value="dark" ${S.theme=='dark'?'selected':''}>Dark</option></select><div style="margin-top:10px"><small>Name on top (Home title)</small><input placeholder="e.g. Sam's Budget" value="${esc(S.appName||'')}" onchange="S.appName=this.value.trim();save();render()"></div><div style="margin-top:10px"><small>Background</small><select onchange="S.bg=this.value;applyLook();save()">${[['','Default'],['midnight','Midnight black'],['ocean','Deep ocean'],['forest','Forest'],['plum','Plum'],['coffee','Coffee'],['sand','Sand (light)']].map(([k,nm])=>`<option value="${k}" ${S.bg==k?'selected':''}>${nm}</option>`).join('')}</select></div><div style="margin-top:10px"><small>Text color</small><select onchange="S.txc=this.value;applyLook();save()">${[['','Default'],['white','Bright white'],['ivory','Warm ivory'],['sky','Sky blue'],['mint','Mint'],['rose','Soft pink'],['amber','Amber']].map(([k,nm])=>`<option value="${k}" ${S.txc==k?'selected':''}>${nm}</option>`).join('')}</select></div><small>Background and text color sit on top of the light/dark theme — pick Default to go back.</small></div>`,
 goals:`<div class="card">${S.goals.length?S.goals.map(g=>`<div class="li"><div class="sp"><b>${esc(g.name)}</b><br><small>${f0(g.saved)} of ${f0(g.target)}${g.date?' · by '+esc(g.date):''}</small></div><input class="mini" type="number" value="${g.saved}" onchange="setG(${g.id},this.value)"><button class="x" onclick="delG(${g.id})">${dq=='g'+g.id?'Sure?':'×'}</button></div>`).join(''):'<small>No goals yet — e.g. Emergency fund, First home.</small>'}<div class="f"><input id="gn" class="w" placeholder="Goal name"><input id="gt" type="number" placeholder="Target $"><input id="gs" type="number" placeholder="Saved so far $"><input id="gd" type="date"><button class="btn w" onclick="addG()">Add goal</button></div></div>`,
 shot:`<div class="card"><small>Pick a screenshot of holdings, balances, or expenses. It is scanned on this phone (free; first scan downloads the scanner, needs internet once). You review and fix every number before anything is saved — nothing applies automatically.</small><label class="btn g" style="text-align:center;cursor:pointer;display:block;margin-top:8px">Choose screenshot<input type="file" accept="image/*" hidden onchange="scanShot(this)"></label><div id="scanstatus" style="margin-top:8px"><small>No screenshot chosen yet.</small></div><div id="scanreview"></div></div>`,
 rec:recSec(),
@@ -190,7 +190,10 @@ bak:`<div class="card row"><button class="btn g sp" onclick="exp()">Export backu
 inst:`<div class="card"><small>Open this page in Chrome, tap ⋮ → “Install app”. After the first open it works fully offline — all data stays on your phone, nothing is uploaded. Net worth = cash + savings + investments − card balances. Export a backup regularly: clearing Chrome site data erases the app's data.</small></div>`,
 test:`<div class="card"><small>Want to see the charts, budgets and insights filled in first?</small><br><button class="btn g" style="margin-top:8px" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data'}</button><br><small>Clearly labelled TEST numbers, not yours. Erase all data below wipes them.</small></div>`,
 del:`<div class="card"><button class="btn g dn" onclick="rs()">${dq=='r'?'Tap again to erase everything':'Erase all data'}</button></div>`};
-return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec10</small></div>`}
+return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec11</small></div>`}
+const BGS={midnight:{bg:'#000000',card:'#101214',bd:'#232629'},ocean:{bg:'#071826',card:'#0c2436',bd:'#1d3f57'},forest:{bg:'#0a1a12',card:'#10241a',bd:'#1f4030'},plum:{bg:'#1a0f22',card:'#251533',bd:'#3f2756'},coffee:{bg:'#171008',card:'#241a10',bd:'#40301d'},sand:{bg:'#f5efe3',card:'#fffaf0',bd:'#e2d7c3'}};
+const TXS={white:'#ffffff',ivory:'#f7f0dd',sky:'#bfe0ff',mint:'#c2f2dd',rose:'#ffd3e2',amber:'#ffe3a3'};
+function applyLook(){const st=document.documentElement.style;if(!st||!st.setProperty)return;const b=BGS[S.bg];if(b){st.setProperty('--bg',b.bg);st.setProperty('--card',b.card);st.setProperty('--bd',b.bd)}else{st.removeProperty('--bg');st.removeProperty('--card');st.removeProperty('--bd')}const t=TXS[S.txc];if(t)st.setProperty('--tx',t);else st.removeProperty('--tx')}
 function render(){document.getElementById('app').innerHTML={home,accts,invest,activity,more}[view]();
  document.getElementById('nav').innerHTML=[['home','🏠','Home'],['accts','🏦','Accounts'],['invest','📈','Invest'],['activity','🧾','Activity'],['more','⚙️','More']].map(([k,i,l])=>`<button class="${view==k?'on':''}" onclick="go('${k}')"><b>${i}</b>${l}</button>`).join('')}
 function go(v){dq=null;view=v;render();scrollTo(0,0)}
@@ -327,7 +330,7 @@ function seedTest(){if(dq!='seed'){dq='seed';render();return}dq=null;
 
 if(KEY=='sam-fin-demo-v1'&&!S.acc.length){
  const td=new Date();const MD=(off,day)=>{const x=new Date(td);x.setDate(1);x.setMonth(x.getMonth()-off);x.setDate(day);return x.toISOString().slice(0,10)};
- S.acc=[{id:S.n++,n:'Chequing',t:'cash',b:3850,lim:0},{id:S.n++,n:'Emergency fund',t:'savings',b:12400,lim:0},{id:S.n++,n:'Visa',t:'credit',b:1240,lim:6000},{id:S.n++,n:'Store card',t:'credit',b:380,lim:1500},{id:S.n++,n:'Chequing 1',t:'cash',b:100,lim:0},{id:S.n++,n:'Jehe',t:'savings',b:0,lim:0},{id:S.n++,n:'Sjs',t:'credit',b:60000,lim:0}];
+ S.acc=[{id:S.n++,n:'Chequing',t:'cash',b:3850,lim:0},{id:S.n++,n:'Emergency fund',t:'savings',b:12400,lim:0},{id:S.n++,n:'Visa',t:'credit',b:1240,lim:6000},{id:S.n++,n:'Store card',t:'credit',b:380,lim:1500},{id:S.n++,n:'Chequing 1',t:'cash',b:100,lim:0},{id:S.n++,n:'Jehe',t:'savings',b:0,lim:0},{id:S.n++,n:'Sjs',t:'credit',b:60000,lim:0},{id:S.n++,n:'Wealthsimple TFSA',t:'tfsa',b:0,lim:0},{id:S.n++,n:'Wealthsimple FHSA',t:'fhsa',b:0,lim:0}];
  const cq=S.acc[0].id,vs=S.acc[2].id;
  S.hold=[{id:S.n++,tk:'RY',sh:40,cost:128,px:171.5,div:5.9,w:'nonreg'},{id:S.n++,tk:'XEQT',sh:300,cost:30,px:36.2,div:0.8,w:'nonreg'},{id:S.n++,tk:'TD',sh:60,cost:80,px:78.4,div:4.2,w:'nonreg'},{id:S.n++,tk:'ENB',sh:90,cost:50,px:61.3,div:3.7,w:'nonreg'}];
  const T=(k,a,dt,c,n2,ac)=>S.tx.push({id:S.n++,k,a,d:dt,n:n2,acc:ac,c});
@@ -337,11 +340,12 @@ if(KEY=='sam-fin-demo-v1'&&!S.acc.length){
  for(let off=1;off<=5;off++){T('income',4800,MD(off,1),'Salary','Paycheque',cq);cats.forEach(([c,base,ac],i)=>{const v=Math.round(base*(0.94+((off*7+i*13)%12)/100));T('expense',v,MD(off,2+i),c,'',ac)})}
  const snap={};for(let i=29;i>=0;i--){snap[addDays(tdy(),-i)]=i==0?-17329:40771}S.snap=snap;
  S.goals=[{id:S.n++,name:'Emergency fund',target:15000,saved:12400,date:''}];
+ S.bud={Housing:1500,Food:600,Bills:300,Transport:250,Shopping:200,Fun:150};
  S.rec=[{id:S.n++,n:'Salary',a:4800,k:'income',freq:'monthly',next:MD(-1,1),c:'Salary',acc:cq},{id:S.n++,n:'Rent',a:1452,k:'expense',freq:'monthly',next:MD(-1,2),c:'Housing',acc:cq}];
  S.mkt={last:'sample data',ts:Date.now(),news:[{id:S.n++,tk:'ENB',msg:'Dividend announced: $0.83/share, ex-date soon',when:tdy()}]};
 }
 
-save();render();
+applyLook();save();render();
 if(navigator.onLine&&(!S.mkt.ts||Date.now()-S.mkt.ts>18e5)&&S.hold.length)setTimeout(()=>refreshMarket(false),1500);
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
