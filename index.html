@@ -131,12 +131,14 @@ function chgCard(){
  const inW=k=>sum(S.tx.filter(t=>t.k==k&&t.d>=winStart),t=>t.a),inP=k=>sum(S.tx.filter(t=>t.k==k&&t.d>=prevStart&&t.d<=prevEnd),t=>t.a);
  const inc=inW('income'),exp2=inW('expense'),incP=inP('income'),expP=inP('expense'),cf=inc-exp2;
  const pc=(a,b)=>b>0?(a-b)/b*100:null;
+ const sps=Object.keys(S.snap).filter(k=>k>=snapStart).sort();let spark='';
+ if(sps.length>1){const vv=sps.map(k=>S.snap[k]),mn=Math.min(...vv),mx=Math.max(...vv),rg=(mx-mn)||1;spark='<svg width="100%" height="30" viewBox="0 0 100 30" preserveAspectRatio="none" style="display:block;margin-top:6px"><polyline fill="none" stroke="'+(dNW>=0?'var(--up)':'var(--dn)')+'" stroke-width="1.6" points="'+vv.map((v,i)=>(i/(vv.length-1)*100).toFixed(1)+','+(27-(v-mn)/rg*24).toFixed(1)).join(' ')+'"/></svg>'}
  const fmtP=p=>(p>=0?'▲ ':'▼ ')+Math.abs(p).toFixed(Math.abs(p)>=100?0:1)+'%';
  const vs=(a,b,goodUp)=>{const p=pc(a,b);if(p==null)return 'no previous '+LB+' to compare';const good=goodUp?p>=0:p<=0;return '<span class="'+(good?'up':'dn')+'">'+fmtP(p)+' vs prev '+LB+'</span>'};
  const big=v=>{const r=Math.round(v);return '<span class="'+(r>0?'up':r<0?'dn':'')+'">'+(r>0?'+':'')+f0(r)+'</span>'};
  const tile=(l,val,sub)=>'<div class="cht"><small>'+l+'</small><div class="chv">'+val+'</div>'+(sub?'<div class="chs">'+sub+'</div>':'')+'</div>';
  let h='<h2>Changes</h2><div class="card"><div class="chips chgchips">'+[[1,'Day'],[7,'Week'],[30,'Month'],[365,'Year']].map(([p,l])=>'<button class="chip '+(P==p?'on':'')+'" onclick="ui.chg='+p+';render()">'+l+'</button>').join('')+'</div>';
- h+='<div class="chhero"><small>NET WORTH CHANGE · '+LB.toUpperCase()+'</small><div class="chbig">'+big(dNW)+(nwPct==null?'':' <span class="chpct '+(dNW>=0?'up':'dn')+'">'+fmtP(nwPct)+'</span>')+'</div><small>'+(n0.k&&n0.k>snapStart?'only tracked since '+n0.k:'from '+f0(n0.v||0)+' · '+snapStart)+'</small></div>';
+ h+='<div class="chhero"><small>NET WORTH CHANGE · '+LB.toUpperCase()+'</small><div class="chbig">'+big(dNW)+(nwPct==null?'':' <span class="chpct '+(dNW>=0?'up':'dn')+'">'+fmtP(nwPct)+'</span>')+'</div><small>'+(n0.k&&n0.k>snapStart?'only tracked since '+n0.k:'from '+f0(n0.v||0)+' · '+snapStart)+'</small>'+spark+'</div>';
  h+='<div class="g2 chgrid">'
   +tile('Income','<span class="up">'+f0(inc)+'</span>',vs(inc,incP,true))
   +tile('Expenses','<span class="dn">'+f0(exp2)+'</span>',vs(exp2,expP,false))
@@ -217,7 +219,7 @@ bak:`<div class="card row"><button class="btn g sp" onclick="exp()">Export backu
 inst:`<div class="card"><small>Open this page in Chrome, tap ⋮ → “Install app”. After the first open it works fully offline — all data stays on your phone, nothing is uploaded. Net worth = cash + savings + investments − card balances. Export a backup regularly: clearing Chrome site data erases the app's data.</small></div>`,
 test:`<div class="card"><small>Want to see the charts, budgets and insights filled in first?</small><br><button class="btn g" style="margin-top:8px" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data'}</button><br><small>Clearly labelled TEST numbers, not yours. Erase all data below wipes them.</small></div>`,
 del:`<div class="card"><button class="btn g dn" onclick="rs()">${dq=='r'?'Tap again to erase everything':'Erase all data'}</button></div>`};
-return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec17</small></div>`}
+return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec18</small></div>`}
 const BGS={midnight:{bg:'#000000',card:'#101214',bd:'#232629'},ocean:{bg:'#071826',card:'#0c2436',bd:'#1d3f57'},forest:{bg:'#0a1a12',card:'#10241a',bd:'#1f4030'},plum:{bg:'#1a0f22',card:'#251533',bd:'#3f2756'},coffee:{bg:'#171008',card:'#241a10',bd:'#40301d'},sand:{bg:'#f5efe3',card:'#fffaf0',bd:'#e2d7c3'}};
 const TXS={white:'#ffffff',ivory:'#f7f0dd',sky:'#bfe0ff',mint:'#c2f2dd',rose:'#ffd3e2',amber:'#ffe3a3'};
 function applyLook(){const st=document.documentElement.style;if(!st||!st.setProperty)return;const b=BGS[S.bg];if(b){st.setProperty('--bg',b.bg);st.setProperty('--card',b.card);st.setProperty('--bd',b.bd)}else{st.removeProperty('--bg');st.removeProperty('--card');st.removeProperty('--bd')}const t=TXS[S.txc];if(t)st.setProperty('--tx',t);else st.removeProperty('--tx')}
@@ -335,6 +337,18 @@ return `<h2>Budgets</h2><div class="card">`+(set.length?set.map(srow).join(''):'
 function annCard(){if(!(S.mkt.news||[]).length)return '';return `<h2>Dividend announcements</h2><div class="card">${S.mkt.news.slice(0,5).map(x=>`<div class="li"><div class="sp"><b>${esc(x.tk)}</b> · ${esc(x.msg)}<br><small>${esc(x.when)}</small></div><button class="x" onclick="dismissNews(${x.id})">×</button></div>`).join('')}</div>`}
 function lockCard(){const u=cash()+sav()+sum(S.acc.filter(a=>a.t=='tfsa'),a=>a.b),l=sum(S.acc.filter(a=>['fhsa','rrsp','resp'].includes(a.t)),a=>a.b);if(!u&&!l)return '';return `<div class="card"><div class="row"><small class="sp">Usable (cash + savings + TFSA)</small><b>${f0(u)}</b></div><div class="row" style="margin-top:6px"><small class="sp">Locked (FHSA + RRSP)</small><b>${f0(l)}</b></div></div>`}
 
+function fakeHist(){
+ const n1=nw(),i1=inv();let sd=987654321;const rnd=()=>{sd=(sd*1103515245+12345)%2147483648;return sd/2147483648};
+ const n0=n1-9200,i0=Math.max(0,i1-10800),sn={},si={};
+ for(let d=365;d>=0;d--){const dt=addDays(tdy(),-d),f=1-d/365,wob=Math.sin(d/11)*0.008+(rnd()-0.5)*0.012;
+  sn[dt]=Math.round((n0+(n1-n0)*f+(Math.abs(n1)+5000)*wob)*100)/100;
+  si[dt]=Math.round(Math.max(0,i0+(i1-i0)*f+(i1+3000)*wob)*100)/100}
+ sn[tdy()]=Math.round(n1*100)/100;si[tdy()]=Math.round(i1*100)/100;S.snap=sn;S.snapI=si;
+ const tk0=S.hold.length?S.hold[0].tk:'ETF';
+ S.flow=[];for(let m=11;m>=1;m--){S.flow.push({d:addDays(tdy(),-m*30-3),a:Math.round(650+rnd()*500)});if(m%4==0)S.flow.push({d:addDays(tdy(),-m*30-17),a:-Math.round(300+rnd()*300)})}
+ S.flow.push({d:addDays(tdy(),-6),a:850});
+ S.drec=[];for(let m=11;m>=0;m--){S.drec.push({d:addDays(tdy(),-m*30-9),tk:tk0,a:Math.round((38+rnd()*30)*100)/100})}
+}
 function seedTest(){if(dq!='seed'){dq='seed';render();return}dq=null;
  const td=new Date();const D=(off,day)=>{const x=new Date(td);x.setDate(1);x.setMonth(x.getMonth()-off);x.setDate(Math.min(day,28));return x.toISOString().slice(0,10)};
  const acc=[{id:S.n++,n:'RBC Chequing (TEST)',t:'cash',b:3240.55,lim:0},{id:S.n++,n:'Savings (TEST)',t:'savings',b:8500,lim:0},{id:S.n++,n:'Visa (TEST)',t:'credit',b:612.40,lim:3000},{id:S.n++,n:'Wealthsimple TFSA (TEST)',t:'tfsa',b:1200,lim:0},{id:S.n++,n:'Wealthsimple FHSA (TEST)',t:'fhsa',b:2500,lim:0}];
@@ -354,6 +368,8 @@ function seedTest(){if(dq!='seed'){dq='seed';render();return}dq=null;
  S.rec=[{id:S.n++,n:'Salary (TEST)',a:2115,k:'income',freq:'biweekly',next:addDays(tdy(),9),c:'Salary',acc:acc[0].id},{id:S.n++,n:'Netflix (TEST)',a:17.99,k:'expense',freq:'monthly',next:addDays(tdy(),13),c:'Subscriptions',acc:acc[2].id}];
  S.goals=[{id:S.n++,name:'Emergency fund (TEST)',target:10000,saved:3200,date:'2027-06-01'}];
  S.snapI={};Object.keys(S.snap).forEach(k=>S.snapI[k]=Math.round(S.snap[k]*0.6));S.flow=[{d:D(1,5),a:1500},{d:D(0,3),a:500}];S.drec=[{d:D(0,9),tk:'MSTE.TO',a:45}];
+ fakeHist();
+ S.tx.push({id:S.n++,k:'expense',a:64,d:tdy(),n:'Groceries (TEST)',acc:S.acc[0].id,c:'Groceries'},{id:S.n++,k:'income',a:2400,d:addDays(tdy(),-1),n:'Paycheque (TEST)',acc:S.acc[0].id,c:'Salary'});
  S.mkt={last:'test data',news:[{id:S.n++,tk:'MSTE.TO',msg:'New distribution announced: $0.09/share, ex-date 2026-10-30 (TEST)',when:tdy()}]};
  save();go('home')}
 
@@ -371,7 +387,7 @@ if(KEY=='sam-fin-demo-v1'&&!S.acc.length){
  S.goals=[{id:S.n++,name:'Emergency fund',target:15000,saved:12400,date:''}];
  S.bud={Housing:1500,Food:600,Bills:300,Transport:250,Shopping:200,Fun:150};
  S.rec=[{id:S.n++,n:'Salary',a:4800,k:'income',freq:'monthly',next:MD(-1,1),c:'Salary',acc:cq},{id:S.n++,n:'Rent',a:1452,k:'expense',freq:'monthly',next:MD(-1,2),c:'Housing',acc:cq}];
- S.snapI={};Object.keys(S.snap).forEach(k=>S.snapI[k]=27941);S.flow=[{d:addDays(tdy(),-20),a:1200}];S.drec=[{d:addDays(tdy(),-12),tk:'ENB',a:74.7}];
+ fakeHist();
  S.mkt={last:'sample data',ts:Date.now(),news:[{id:S.n++,tk:'ENB',msg:'Dividend announced: $0.83/share, ex-date soon',when:tdy()}]};
 }
 
