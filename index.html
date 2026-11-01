@@ -135,7 +135,7 @@ function chgCard(){
  const pc=(a,b)=>b>0?(a-b)/b*100:null;
  const fmtP=p=>(p>=0?'▲ ':'▼ ')+Math.abs(p).toFixed(Math.abs(p)>=100?0:1)+'%';
  const big=v=>{const r=Math.round(v);return '<span class="'+(r>0?'up':r<0?'dn':'')+'">'+(r>0?'+':'')+f0(r)+'</span>'};
- const sps=Object.keys(S.snap).filter(k=>k>=snapStart).sort();let graph='';
+ const sps=Object.keys(S.snap).filter(k=>k>=snapStart).sort();let graph='<div style="font-size:12px;color:var(--mu);margin-top:4px">Line graph starts tomorrow — it needs two days of points.</div>';
  if(sps.length>1){const vv=sps.map(k=>S.snap[k]);if(Math.round(vv[vv.length-1]*100)!=Math.round(nw()*100)){vv.push(nw());sps.push(tdy())}
   const mn=Math.min(...vv),mx=Math.max(...vv),rg=(mx-mn)||1;
   const pts=vv.map((v,i)=>(i/(vv.length-1)*100).toFixed(1)+','+(31-(v-mn)/rg*26).toFixed(1)).join(' ');
@@ -234,7 +234,7 @@ bak:`<div class="card row"><button class="btn g sp" onclick="exp()">Export backu
 inst:`<div class="card"><small>Open this page in Chrome, tap ⋮ → “Install app”. After the first open it works fully offline — all data stays on your phone, nothing is uploaded. Net worth = cash + savings + investments − card balances. Export a backup regularly: clearing Chrome site data erases the app's data.</small></div>`,
 test:`<div class="card"><small>Want to see the charts, budgets and insights filled in first?</small><br><button class="btn g" style="margin-top:8px" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data'}</button><br><small>Clearly labelled TEST numbers, not yours. Erase all data below wipes them.</small></div>`,
 del:`<div class="card"><button class="btn g dn" onclick="rs()">${dq=='r'?'Tap again to erase everything':'Erase all data'}</button></div>`};
-return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec20</small></div>`}
+return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec21</small></div>`}
 const BGS={midnight:{bg:'#000000',card:'#101214',bd:'#232629'},ocean:{bg:'#071826',card:'#0c2436',bd:'#1d3f57'},forest:{bg:'#0a1a12',card:'#10241a',bd:'#1f4030'},plum:{bg:'#1a0f22',card:'#251533',bd:'#3f2756'},coffee:{bg:'#171008',card:'#241a10',bd:'#40301d'},sand:{bg:'#f5efe3',card:'#fffaf0',bd:'#e2d7c3'}};
 const TXS={white:'#ffffff',ivory:'#f7f0dd',sky:'#bfe0ff',mint:'#c2f2dd',rose:'#ffd3e2',amber:'#ffe3a3'};
 function applyLook(){const st=document.documentElement.style;if(!st||!st.setProperty)return;const b=BGS[S.bg];if(b){st.setProperty('--bg',b.bg);st.setProperty('--card',b.card);st.setProperty('--bd',b.bd)}else{st.removeProperty('--bg');st.removeProperty('--card');st.removeProperty('--bd')}const t=TXS[S.txc];if(t)st.setProperty('--tx',t);else st.removeProperty('--tx')}
