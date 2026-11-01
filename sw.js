@@ -4,3 +4,5 @@ self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.al
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;
 if(e.request.mode=='navigate'){e.respondWith(fetch(e.request).then(r=>{if(r&&r.status===200){const c=r.clone();caches.open(C).then(x=>x.put('./index.html',c))}return r}).catch(()=>caches.match('./index.html',{ignoreSearch:true})));return}
 e.respondWith(caches.match(e.request).then(hit=>{const net=fetch(e.request).then(rr=>{if(rr&&rr.status===200){const c=rr.clone();caches.open(C).then(x=>x.put(e.request,c))}return rr}).catch(()=>hit);return hit||net}))});
+
+// deployment nudge 2026-11-01: re-trigger Pages after a stuck deployment queue
