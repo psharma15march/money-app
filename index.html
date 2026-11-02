@@ -101,12 +101,14 @@ body{overflow-x:hidden}
 .hgrid small{font-size:11px}
 .hgrid input,.hgrid select{padding:8px 10px;font-size:15px;border-radius:10px;margin-top:3px}
 .sellrow input{padding:8px 10px;font-size:15px}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;width:58px;height:58px;border-radius:50%;background:var(--ac);color:#fff;font-size:32px;line-height:1;border:0;box-shadow:0 8px 22px rgba(0,0,0,.5);z-index:60;cursor:pointer}
+.fabsheet{position:fixed;left:12px;right:12px;bottom:154px;z-index:61;box-shadow:0 12px 32px rgba(0,0,0,.5)}
 .updbtn{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.14);color:#fff;font-size:19px;line-height:1;flex:none;cursor:pointer}
 .sum3{display:flex;gap:10px}.sum3>div{flex:1;min-width:0}.sum3>div+div{border-left:1px solid var(--bd);padding-left:10px}.sum3 b{font-size:19px;display:block;margin-top:2px}
 .fav{display:inline-flex;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#10131a;flex:none}
 @media(max-width:380px){.hgrid{grid-template-columns:1fr 1fr}}
 </style></head><body>
-<main id="app"></main><nav id="nav"></nav>
+<main id="app"></main><nav id="nav"></nav><div id="fab"></div>
 <script>
 const KEY=new URLSearchParams(location.search||'').has('demo')?'sam-fin-demo-v1':'sam-fin-v1',PAL=['#0f766e','#6366f1','#f59e0b','#ec4899','#0ea5e9','#84cc16','#f97316','#a855f7'];const pal=i=>PAL[i%8];
 const GROUPS={'Fixed':['Housing','Utilities & Bills','Phone & Internet','Insurance','Subscriptions'],'Needs':['Groceries','Gas','Transport','Household','Health & Pharmacy'],'Lifestyle':['Eating Out','Food Delivery','Coffee & Snacks','Entertainment','Travel'],'Wants':['Shopping','Personal Care','Gifts & Giving','Other'],'Invest':['TFSA','FHSA','RRSP','RESP','Non-registered'],'Learning & Self':['Courses','Books','Coaching']};
@@ -286,7 +288,7 @@ bak:`<div class="card row"><button class="btn g sp" onclick="exp()">Export backu
 inst:`<div class="card"><small>Open this page in Chrome, tap ⋮ → “Install app”. After the first open it works fully offline — all data stays on your phone, nothing is uploaded. Net worth = cash + savings + investments − card balances. Export a backup regularly: clearing Chrome site data erases the app's data.</small></div>`,
 test:`<div class="card"><small>Want to see the charts, budgets and insights filled in first?</small><br><button class="btn g" style="margin-top:8px" onclick="seedTest()">${dq=='seed'?'Tap again — load TEST data (replaces current)':'Load test data'}</button><br><small>Clearly labelled TEST numbers, not yours. Erase all data below wipes them.</small></div>`,
 del:`<div class="card"><button class="btn g dn" onclick="rs()">${dq=='r'?'Tap again to erase everything':'Erase all data'}</button></div>`};
-return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec49</small></div>`}
+return `<h1>More</h1>`+M.map(([k,ic,lb,sb])=>`<div class="card mrow" onclick="togMo('${k}')"><span class="ic">${ic}</span><div class="sp"><b>${lb}</b><br><small>${sb}</small></div><span style="color:var(--mu);font-size:19px">${ui.mo==k?'▾':'›'}</span></div>`+(ui.mo==k?P[k]:'')).join('')+`<div style="text-align:center;margin:12px 0 2px"><small>Quick Budget · build spec50</small></div>`}
 const BGS={midnight:{bg:'#000000',card:'#101214',bd:'#232629'},ocean:{bg:'#071826',card:'#0c2436',bd:'#1d3f57'},forest:{bg:'#0a1a12',card:'#10241a',bd:'#1f4030'},plum:{bg:'#1a0f22',card:'#251533',bd:'#3f2756'},coffee:{bg:'#171008',card:'#241a10',bd:'#40301d'},sand:{bg:'#f5efe3',card:'#fffaf0',bd:'#e2d7c3'}};
 const TXS={white:'#ffffff',ivory:'#f7f0dd',sky:'#bfe0ff',mint:'#c2f2dd',rose:'#ffd3e2',amber:'#ffe3a3'};
 function applyLook(){const st=document.documentElement.style;if(!st||!st.setProperty)return;document.documentElement.dataset.bw=S.bw=='1'?'dark':(S.bw||'');
@@ -295,7 +297,10 @@ if(S.bw=='light'){st.setProperty('--bg','#ffffff');st.setProperty('--card','#f7f
 ['--ac','--up','--dn','--mu'].forEach(v=>st.removeProperty(v));const b=BGS[S.bg];if(b){st.setProperty('--bg',b.bg);st.setProperty('--card',b.card);st.setProperty('--bd',b.bd)}else{st.removeProperty('--bg');st.removeProperty('--card');st.removeProperty('--bd')}const t=TXS[S.txc];if(t)st.setProperty('--tx',t);else st.removeProperty('--tx')}
 function render(){document.getElementById('app').innerHTML={home,accts,invest,activity,family,more}[view]();
  document.getElementById('nav').innerHTML=[['home','🏠','Home'],['accts','🏦','Accounts'],['invest','📈','Invest'],['activity','🧾','Activity'],['family','👨‍👩‍👧','Family'],['more','⚙️','More']].map(([k,i,l])=>`<button class="${view==k?'on':''}" onclick="go('${k}')"><b>${i}</b>${l}</button>`).join('')}
+function fabHtml(){return `<button class="fab" onclick="ui.fab=!ui.fab;render()" aria-label="Quick add">＋</button>`+(ui.fab?`<div class="fabsheet card"><b>Quick add</b><div class="li" style="cursor:pointer" onclick="fabGo('act')"><span class="ic">🧾</span><div class="sp"><b>Expense or income</b><br><small>Log it in Activity</small></div></div><div class="li" style="cursor:pointer" onclick="fabGo('fam')"><span class="ic">👨‍👩‍👧</span><div class="sp"><b>Household expense</b><br><small>Shared spending, in Family</small></div></div><div class="li" style="cursor:pointer" onclick="fabGo('inv')"><span class="ic">📈</span><div class="sp"><b>Stock or deposit</b><br><small>Add it in Invest</small></div></div></div>`:'')}
+function fabGo(k){ui.fab=false;if(k=='act'){ui.addEntry=true;go('activity')}else if(k=='fam'){ui.famAdd=true;go('family')}else{ui.addOpen=true;ui.addKind='stock';go('invest')}}
 function go(v){dq=null;view=v;render();scrollTo(0,0)}
+const _render0=render;render=function(){_render0();const fe=document.getElementById('fab');if(fe)fe.innerHTML=fabHtml()};
 function setAName(id,v){const a=A(id);if(!a)return;const n=(v||'').trim();if(n)a.n=n;save();render()}
 function setA(id,v){const a=A(id);a.b=num(v);if(a.t=='credit')a.b=Math.abs(a.b);save();render()}
 function delA(id){if(dq!='a'+id){dq='a'+id;render();return}S.acc=S.acc.filter(a=>a.id!=id);dq=null;save();render()}
