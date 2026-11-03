@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Get Quick Budget</title>
+<meta name="theme-color" content="#0e1112">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #0e1112; color: #eef2f1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 18px; }
+  .card { width: 100%; max-width: 400px; background: #181c1e; border: 1px solid #273033; border-radius: 22px; padding: 30px 24px 26px; text-align: center; }
+  img.icon { width: 84px; height: 84px; border-radius: 20px; }
+  h1 { font-size: 27px; margin-top: 14px; }
+  p.tag { color: #93a0a6; font-size: 15px; margin-top: 7px; line-height: 1.45; }
+  .btn { display: block; margin-top: 22px; background: #2dd4bf; color: #06251f; font-weight: 700; font-size: 17px; padding: 15px 18px; border-radius: 999px; text-decoration: none; }
+  .btn.ghost { background: transparent; color: #2dd4bf; border: 1.5px solid #2dd4bf; }
+  .note { color: #93a0a6; font-size: 13.5px; margin-top: 12px; line-height: 1.45; }
+  ol { text-align: left; margin: 18px 4px 0; padding-left: 22px; color: #eef2f1; font-size: 15.5px; line-height: 1.65; }
+  ol b { color: #2dd4bf; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img class="icon" src="icon-192.png" alt="Quick Budget icon">
+    <h1>Quick Budget</h1>
+    <p class="tag">Simple offline budgeting.<br>Your data stays on your phone — no account, no cloud.</p>
+
+    <div id="android" class="hidden">
+      <a class="btn" href="QuickBudget.apk" download>⬇ Download the app</a>
+      <p class="note">For Android. If your phone asks, allow installs from your browser, then open the downloaded file.</p>
+      <a class="btn ghost" href="./">Just open it in the browser</a>
+    </div>
+
+    <div id="ios" class="hidden">
+      <ol>
+        <li>Tap <b>Open the app</b> below</li>
+        <li>In Safari, tap the <b>Share</b> icon ⤴</li>
+        <li>Tap <b>“Add to Home Screen”</b>, then <b>Add</b></li>
+      </ol>
+      <a class="btn" href="./">Open the app</a>
+      <p class="note">That puts Quick Budget on your home screen like a regular app — full-screen and offline.</p>
+    </div>
+
+    <div id="both">
+      <a class="btn" href="QuickBudget.apk" download>⬇ Download for Android</a>
+      <a class="btn ghost" href="./">🍎 On iPhone? Open the app</a>
+      <p class="note">iPhone: after it opens in Safari, tap Share ⤴ → “Add to Home Screen”.</p>
+    </div>
+  </div>
+
+<script>
+  (function () {
+    var ua = navigator.userAgent || '';
+    var isiOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var isAndroid = /Android/.test(ua);
+    if (isiOS) {
+      document.getElementById('ios').classList.remove('hidden');
+      document.getElementById('both').classList.add('hidden');
+    } else if (isAndroid) {
+      document.getElementById('android').classList.remove('hidden');
+      document.getElementById('both').classList.add('hidden');
+    }
+  })();
+</script>
+</body>
+</html>
